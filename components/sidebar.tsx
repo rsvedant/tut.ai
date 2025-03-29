@@ -134,7 +134,7 @@ export function ChatSidebar() {
 
     return (
         <SidebarProvider>
-            <Sidebar className="border-r">
+            <Sidebar>
                 <SidebarHeader>
                     <div className="flex items-center gap-2 px-4 py-2">
                         <BookOpen className="h-6 w-6" />
@@ -359,7 +359,7 @@ export function ChatSidebar() {
             {/* This is where your main content would go */}
             <div className="flex-1 p-4">
                 <SidebarTrigger className="mb-4 md:hidden" />
-                <div className="rounded-lg border p-4">
+                <div className="rounded-lg border border-zinc-200/50 dark:border-zinc-800/20 p-4">
                     {selectedTutor ? (
                         <div>
                             <h2 className="text-lg font-semibold">
