@@ -100,7 +100,12 @@ export default function Home() {
                                 <HeroUIButton
                                     className="px-4 py-2"
                                     color="primary"
-                                    endContent={<Icon className="h-4 w-4" icon="lucide:send" />}
+                                    endContent={
+                                        <Icon
+                                            className="h-4 w-4"
+                                            icon="lucide:send"
+                                        />
+                                    }
                                     variant="shadow"
                                 >
                                     Send
