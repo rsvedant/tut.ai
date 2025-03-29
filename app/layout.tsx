@@ -47,7 +47,7 @@ export default function RootLayout({
                 >
                     <div className="relative flex flex-col h-screen">
                         {/* Make this blocked off for unauthed users */}
-                        <ChatSidebar /> 
+                        <ChatSidebar />
                         <main className="container mx-auto max-w-7xl pt-16 px-6 flex-grow">
                             {children}
                         </main>
