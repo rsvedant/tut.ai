@@ -117,7 +117,7 @@ export function ChatSidebar() {
         setTimeout(() => {
             setView("chats");
             setIsAnimating(false);
-        }, 300);
+        }, 50);
     };
 
     // Handle back to tutors with animation
@@ -128,7 +128,7 @@ export function ChatSidebar() {
         setTimeout(() => {
             setView("tutors");
             setIsAnimating(false);
-        }, 300);
+        }, 50);
     };
 
     // Handle new chat creation
@@ -143,7 +143,7 @@ export function ChatSidebar() {
                 <SidebarHeader>
                     <div className="flex items-center gap-2 px-4 py-2">
                         <BookOpen className="h-6 w-6" />
-                        <h1 className="text-xl font-semibold">TutorChat</h1>
+                        <h1 className="text-xl font-semibold">Tut.AI</h1>
                     </div>
                     <div className="px-4 py-2">
                         <SidebarInput
