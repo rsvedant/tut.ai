@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import * as React from "react";
 
+import MessageCard from "./ai/ai-message";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -30,7 +32,6 @@ import {
     SidebarProvider,
     SidebarTrigger,
 } from "@/components/ui/sidebar";
-import MessageCard from "./ai/ai-message";
 
 // Sample data for tutors and chats
 const tutors = [
@@ -162,11 +163,10 @@ export function ChatSidebar() {
                     <div className="relative overflow-hidden">
                         {/* Tutors View */}
                         <div
-                            className={`transition-all duration-300 ${
-                                view === "tutors"
+                            className={`transition-all duration-300 ${view === "tutors"
                                     ? "translate-x-0 opacity-100"
                                     : "-translate-x-full absolute opacity-0"
-                            } ${isAnimating ? "pointer-events-none" : ""}`}
+                                } ${isAnimating ? "pointer-events-none" : ""}`}
                         >
                             <SidebarGroup>
                                 <SidebarGroupLabel className="flex justify-between items-center">
@@ -230,11 +230,10 @@ export function ChatSidebar() {
 
                         {/* Chats View */}
                         <div
-                            className={`transition-all duration-300 ${
-                                view === "chats"
+                            className={`transition-all duration-300 ${view === "chats"
                                     ? "translate-x-0 opacity-100"
                                     : "translate-x-full absolute opacity-0"
-                            } ${isAnimating ? "pointer-events-none" : ""}`}
+                                } ${isAnimating ? "pointer-events-none" : ""}`}
                         >
                             <SidebarGroup>
                                 <SidebarGroupLabel className="flex items-center gap-2">
@@ -374,7 +373,7 @@ export function ChatSidebar() {
                                 }
                             </div>
                             <div className="space-y-4">
-                                <MessageCard />
+                                <MessageCard message="Hello! How can I help you today?" />
                                 {/* <div className="p-2 rounded bg-gray-100 dark:bg-gray-700">
                                     Hello! How can I help you today?
                                 </div> */}
