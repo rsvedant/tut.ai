@@ -43,8 +43,7 @@ export default function RootLayout({
                 <Providers
                     themeProps={{ attribute: "class", defaultTheme: "dark" }}
                 >
-                    <ChatSidebar />
-                    <main className="container mx-auto max-w-7xl pt-16 px-6 flex-grow">
+                    <main className="w-full h-full">
                         {children}
                     </main>
                 </Providers>
