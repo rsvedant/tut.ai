@@ -1,5 +1,8 @@
 "use client";
 
+import { Button as HeroUIButton } from "@heroui/button";
+import { Input } from "@heroui/input";
+import { Icon } from "@iconify/react";
 import {
     ArrowLeft,
     BookOpen,
@@ -27,6 +30,7 @@ import {
     SidebarProvider,
     SidebarTrigger,
 } from "@/components/ui/sidebar";
+import MessageCard from "./ai/ai-message";
 
 // Sample data for tutors and chats
 const tutors = [
@@ -158,10 +162,11 @@ export function ChatSidebar() {
                     <div className="relative overflow-hidden">
                         {/* Tutors View */}
                         <div
-                            className={`transition-all duration-300 ${view === "tutors"
+                            className={`transition-all duration-300 ${
+                                view === "tutors"
                                     ? "translate-x-0 opacity-100"
                                     : "-translate-x-full absolute opacity-0"
-                                } ${isAnimating ? "pointer-events-none" : ""}`}
+                            } ${isAnimating ? "pointer-events-none" : ""}`}
                         >
                             <SidebarGroup>
                                 <SidebarGroupLabel className="flex justify-between items-center">
@@ -225,10 +230,11 @@ export function ChatSidebar() {
 
                         {/* Chats View */}
                         <div
-                            className={`transition-all duration-300 ${view === "chats"
+                            className={`transition-all duration-300 ${
+                                view === "chats"
                                     ? "translate-x-0 opacity-100"
                                     : "translate-x-full absolute opacity-0"
-                                } ${isAnimating ? "pointer-events-none" : ""}`}
+                            } ${isAnimating ? "pointer-events-none" : ""}`}
                         >
                             <SidebarGroup>
                                 <SidebarGroupLabel className="flex items-center gap-2">
@@ -355,36 +361,57 @@ export function ChatSidebar() {
                     </SidebarMenu>
                 </SidebarFooter>
             </Sidebar>
-
-            {/* This is where your main content would go */}
-            <div className="flex-1 p-4">
+            <div className="flex-1 flex flex-col p-4">
                 <SidebarTrigger className="mb-4 md:hidden" />
-                <div className="rounded-lg border border-zinc-200/50 dark:border-zinc-800/20 p-4">
+                <div className="flex-grow rounded-lg border border-zinc-200/50 dark:border-zinc-800 p-4 mb-4 overflow-y-auto">
                     {selectedTutor ? (
-                        <div>
-                            <h2 className="text-lg font-semibold">
+                        <>
+                            <div className="mb-2 text-sm text-muted-foreground">
+                                Chat with{" "}
                                 {
                                     tutors.find((t) => t.id === selectedTutor)
                                         ?.name
                                 }
-                            </h2>
-                            <p className="text-muted-foreground">
-                                {view === "chats"
-                                    ? "Select a chat or start a new conversation"
-                                    : "Click on a tutor to see your chats"}
-                            </p>
-                        </div>
+                            </div>
+                            <div className="space-y-4">
+                                <MessageCard />
+                                {/* <div className="p-2 rounded bg-gray-100 dark:bg-gray-700">
+                                    Hello! How can I help you today?
+                                </div> */}
+                            </div>
+                        </>
                     ) : (
-                        <div>
-                            <h2 className="text-lg font-semibold">
-                                Welcome to TutorChat
-                            </h2>
-                            <p className="text-muted-foreground">
-                                Select a tutor to get started
-                            </p>
+                        <div className="text-center text-lg font-semibold">
+                            Please select a tutor to start chatting.
                         </div>
                     )}
                 </div>
+                {selectedTutor && (
+                    <div className="flex items-center gap-2">
+                        <Input
+                            className="flex-1 rounded p-2 focus:outline-none focus:ring"
+                            endContent={
+                                <HeroUIButton
+                                    className="px-4 py-2"
+                                    color="primary"
+                                    endContent={
+                                        <Icon
+                                            className="h-4 w-4"
+                                            icon="lucide:send"
+                                        />
+                                    }
+                                    variant="shadow"
+                                >
+                                    Send
+                                </HeroUIButton>
+                            }
+                            placeholder="Type your message..."
+                            size="lg"
+                            type="text"
+                            variant="bordered"
+                        />
+                    </div>
+                )}
             </div>
         </SidebarProvider>
     );
