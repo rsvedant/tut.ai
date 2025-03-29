@@ -1,8 +1,5 @@
 "use client";
 
-import { Button as HeroUIButton } from "@heroui/button";
-import { Input } from "@heroui/input";
-import { Icon } from "@iconify/react";
 import {
     ArrowLeft,
     BookOpen,
@@ -10,8 +7,6 @@ import {
     PlusCircle,
 } from "lucide-react";
 import * as React from "react";
-
-import MessageCard from "./ai/ai-message";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -29,8 +24,6 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
-    SidebarProvider,
-    SidebarTrigger,
 } from "@/components/ui/sidebar";
 
 // Sample data for tutors and chats
@@ -138,280 +131,213 @@ export function ChatSidebar() {
     };
 
     return (
-        <SidebarProvider>
-            <Sidebar>
-                <SidebarHeader>
-                    <div className="flex items-center gap-2 px-4 py-2">
-                        <BookOpen className="h-6 w-6" />
-                        <h1 className="text-xl font-semibold">Tut.AI</h1>
-                    </div>
-                    <div className="px-4 py-2">
-                        <SidebarInput
-                            className="h-9"
-                            placeholder={
-                                view === "tutors"
-                                    ? "Search tutors..."
-                                    : "Search chats..."
-                            }
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
-                    </div>
-                </SidebarHeader>
+        <Sidebar>
+            <SidebarHeader>
+                <div className="flex items-center gap-2 px-4 py-2">
+                    <BookOpen className="h-6 w-6" />
+                    <h1 className="text-xl font-semibold">Tut.AI</h1>
+                </div>
+                <div className="px-4 py-2">
+                    <SidebarInput
+                        className="h-9"
+                        placeholder={
+                            view === "tutors"
+                                ? "Search tutors..."
+                                : "Search chats..."
+                        }
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                </div>
+            </SidebarHeader>
 
-                <SidebarContent>
-                    <div className="relative overflow-hidden">
-                        {/* Tutors View */}
-                        <div
-                            className={`transition-all duration-300 ${view === "tutors"
-                                    ? "translate-x-0 opacity-100"
-                                    : "-translate-x-full absolute opacity-0"
-                                } ${isAnimating ? "pointer-events-none" : ""}`}
-                        >
-                            <SidebarGroup>
-                                <SidebarGroupLabel className="flex justify-between items-center">
-                                    <span>Tutors</span>
+            <SidebarContent>
+                <div className="relative overflow-hidden">
+                    {/* Tutors View */}
+                    <div
+                        className={`transition-all duration-300 ${view === "tutors"
+                                ? "translate-x-0 opacity-100"
+                                : "-translate-x-full absolute opacity-0"
+                            } ${isAnimating ? "pointer-events-none" : ""}`}
+                    >
+                        <SidebarGroup>
+                            <SidebarGroupLabel className="flex justify-between items-center">
+                                <span>Tutors</span>
+                                <Button
+                                    className="h-5 w-5"
+                                    size="icon"
+                                    variant="ghost"
+                                >
+                                    <PlusCircle className="h-4 w-4" />
+                                    <span className="sr-only">Add Tutor</span>
+                                </Button>
+                            </SidebarGroupLabel>
+                            <SidebarGroupContent>
+                                <ScrollArea className="h-[calc(100vh-200px)]">
+                                    <SidebarMenu>
+                                        {tutors.map((tutor) => (
+                                            <SidebarMenuItem key={tutor.id}>
+                                                <SidebarMenuButton
+                                                    className="flex items-center gap-3"
+                                                    onClick={() =>
+                                                        handleTutorSelect(
+                                                            tutor.id,
+                                                        )
+                                                    }
+                                                >
+                                                    <Avatar className="h-8 w-8">
+                                                        <AvatarImage
+                                                            alt={tutor.name}
+                                                            src={tutor.avatar}
+                                                        />
+                                                        <AvatarFallback>
+                                                            {tutor.name.charAt(
+                                                                0,
+                                                            )}
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                    <div className="flex flex-col">
+                                                        <span className="font-medium">
+                                                            {tutor.name}
+                                                        </span>
+                                                        <span className="text-xs text-muted-foreground">
+                                                            {tutor.subject}
+                                                        </span>
+                                                    </div>
+                                                    {tutor.online && (
+                                                        <div className="ml-auto h-2 w-2 rounded-full bg-green-500" />
+                                                    )}
+                                                </SidebarMenuButton>
+                                            </SidebarMenuItem>
+                                        ))}
+                                    </SidebarMenu>
+                                </ScrollArea>
+                            </SidebarGroupContent>
+                        </SidebarGroup>
+                    </div>
+
+                    {/* Chats View */}
+                    <div
+                        className={`transition-all duration-300 ${view === "chats"
+                                ? "translate-x-0 opacity-100"
+                                : "translate-x-full absolute opacity-0"
+                            } ${isAnimating ? "pointer-events-none" : ""}`}
+                    >
+                        <SidebarGroup>
+                            <SidebarGroupLabel className="flex items-center gap-2">
+                                <Button
+                                    className="h-5 w-5"
+                                    size="icon"
+                                    variant="ghost"
+                                    onClick={handleBackToTutors}
+                                >
+                                    <ArrowLeft className="h-4 w-4" />
+                                    <span className="sr-only">
+                                        Back to tutors
+                                    </span>
+                                </Button>
+                                <div className="flex items-center gap-2">
+                                    {activeTutor && (
+                                        <>
+                                            <Avatar className="h-6 w-6">
+                                                <AvatarImage
+                                                    alt={activeTutor.name}
+                                                    src={activeTutor.avatar}
+                                                />
+                                                <AvatarFallback>
+                                                    {activeTutor.name.charAt(0)}
+                                                </AvatarFallback>
+                                            </Avatar>
+                                            <span>{activeTutor.name}</span>
+                                        </>
+                                    )}
+                                </div>
+                            </SidebarGroupLabel>
+                            <SidebarGroupContent>
+                                <div className="flex justify-between items-center px-4 py-2">
+                                    <span className="text-sm font-medium">
+                                        Chats
+                                    </span>
                                     <Button
-                                        className="h-5 w-5"
-                                        size="icon"
-                                        variant="ghost"
+                                        className="h-8 gap-1"
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={handleNewChat}
                                     >
-                                        <PlusCircle className="h-4 w-4" />
-                                        <span className="sr-only">
-                                            Add Tutor
-                                        </span>
+                                        <MessageSquarePlus className="h-4 w-4" />
+                                        <span>New Chat</span>
                                     </Button>
-                                </SidebarGroupLabel>
-                                <SidebarGroupContent>
-                                    <ScrollArea className="h-[calc(100vh-200px)]">
-                                        <SidebarMenu>
-                                            {tutors.map((tutor) => (
-                                                <SidebarMenuItem key={tutor.id}>
-                                                    <SidebarMenuButton
-                                                        className="flex items-center gap-3"
-                                                        onClick={() =>
-                                                            handleTutorSelect(
-                                                                tutor.id,
-                                                            )
-                                                        }
-                                                    >
-                                                        <Avatar className="h-8 w-8">
-                                                            <AvatarImage
-                                                                alt={tutor.name}
-                                                                src={
-                                                                    tutor.avatar
-                                                                }
-                                                            />
-                                                            <AvatarFallback>
-                                                                {tutor.name.charAt(
-                                                                    0,
-                                                                )}
-                                                            </AvatarFallback>
-                                                        </Avatar>
-                                                        <div className="flex flex-col">
+                                </div>
+                                <ScrollArea className="h-[calc(100vh-250px)]">
+                                    <SidebarMenu>
+                                        {filteredChats.length > 0 ? (
+                                            filteredChats.map((chat) => (
+                                                <SidebarMenuItem key={chat.id}>
+                                                    <SidebarMenuButton className="flex flex-col items-start gap-1">
+                                                        <div className="flex w-full justify-between">
                                                             <span className="font-medium">
-                                                                {tutor.name}
+                                                                {chat.title}
                                                             </span>
                                                             <span className="text-xs text-muted-foreground">
-                                                                {tutor.subject}
+                                                                {chat.timestamp}
                                                             </span>
                                                         </div>
-                                                        {tutor.online && (
-                                                            <div className="ml-auto h-2 w-2 rounded-full bg-green-500" />
-                                                        )}
+                                                        <div className="flex w-full justify-between">
+                                                            <span className="text-xs text-muted-foreground truncate max-w-[80%]">
+                                                                {
+                                                                    chat.lastMessage
+                                                                }
+                                                            </span>
+                                                            {chat.unread && (
+                                                                <Badge
+                                                                    className="h-5 w-5 rounded-full p-0 flex items-center justify-center"
+                                                                    variant="default"
+                                                                >
+                                                                    <span className="sr-only">
+                                                                        Unread
+                                                                        messages
+                                                                    </span>
+                                                                </Badge>
+                                                            )}
+                                                        </div>
                                                     </SidebarMenuButton>
                                                 </SidebarMenuItem>
-                                            ))}
-                                        </SidebarMenu>
-                                    </ScrollArea>
-                                </SidebarGroupContent>
-                            </SidebarGroup>
-                        </div>
-
-                        {/* Chats View */}
-                        <div
-                            className={`transition-all duration-300 ${view === "chats"
-                                    ? "translate-x-0 opacity-100"
-                                    : "translate-x-full absolute opacity-0"
-                                } ${isAnimating ? "pointer-events-none" : ""}`}
-                        >
-                            <SidebarGroup>
-                                <SidebarGroupLabel className="flex items-center gap-2">
-                                    <Button
-                                        className="h-5 w-5"
-                                        size="icon"
-                                        variant="ghost"
-                                        onClick={handleBackToTutors}
-                                    >
-                                        <ArrowLeft className="h-4 w-4" />
-                                        <span className="sr-only">
-                                            Back to tutors
-                                        </span>
-                                    </Button>
-                                    <div className="flex items-center gap-2">
-                                        {activeTutor && (
-                                            <>
-                                                <Avatar className="h-6 w-6">
-                                                    <AvatarImage
-                                                        alt={activeTutor.name}
-                                                        src={activeTutor.avatar}
-                                                    />
-                                                    <AvatarFallback>
-                                                        {activeTutor.name.charAt(
-                                                            0,
-                                                        )}
-                                                    </AvatarFallback>
-                                                </Avatar>
-                                                <span>{activeTutor.name}</span>
-                                            </>
+                                            ))
+                                        ) : (
+                                            <div className="px-4 py-3 text-sm text-muted-foreground">
+                                                No chats with this tutor yet.
+                                                Start a new conversation!
+                                            </div>
                                         )}
-                                    </div>
-                                </SidebarGroupLabel>
-                                <SidebarGroupContent>
-                                    <div className="flex justify-between items-center px-4 py-2">
-                                        <span className="text-sm font-medium">
-                                            Chats
-                                        </span>
-                                        <Button
-                                            className="h-8 gap-1"
-                                            size="sm"
-                                            variant="outline"
-                                            onClick={handleNewChat}
-                                        >
-                                            <MessageSquarePlus className="h-4 w-4" />
-                                            <span>New Chat</span>
-                                        </Button>
-                                    </div>
-                                    <ScrollArea className="h-[calc(100vh-250px)]">
-                                        <SidebarMenu>
-                                            {filteredChats.length > 0 ? (
-                                                filteredChats.map((chat) => (
-                                                    <SidebarMenuItem
-                                                        key={chat.id}
-                                                    >
-                                                        <SidebarMenuButton className="flex flex-col items-start gap-1">
-                                                            <div className="flex w-full justify-between">
-                                                                <span className="font-medium">
-                                                                    {chat.title}
-                                                                </span>
-                                                                <span className="text-xs text-muted-foreground">
-                                                                    {
-                                                                        chat.timestamp
-                                                                    }
-                                                                </span>
-                                                            </div>
-                                                            <div className="flex w-full justify-between">
-                                                                <span className="text-xs text-muted-foreground truncate max-w-[80%]">
-                                                                    {
-                                                                        chat.lastMessage
-                                                                    }
-                                                                </span>
-                                                                {chat.unread && (
-                                                                    <Badge
-                                                                        className="h-5 w-5 rounded-full p-0 flex items-center justify-center"
-                                                                        variant="default"
-                                                                    >
-                                                                        <span className="sr-only">
-                                                                            Unread
-                                                                            messages
-                                                                        </span>
-                                                                    </Badge>
-                                                                )}
-                                                            </div>
-                                                        </SidebarMenuButton>
-                                                    </SidebarMenuItem>
-                                                ))
-                                            ) : (
-                                                <div className="px-4 py-3 text-sm text-muted-foreground">
-                                                    No chats with this tutor
-                                                    yet. Start a new
-                                                    conversation!
-                                                </div>
-                                            )}
-                                        </SidebarMenu>
-                                    </ScrollArea>
-                                </SidebarGroupContent>
-                            </SidebarGroup>
-                        </div>
+                                    </SidebarMenu>
+                                </ScrollArea>
+                            </SidebarGroupContent>
+                        </SidebarGroup>
                     </div>
-                </SidebarContent>
-
-                <SidebarFooter>
-                    <SidebarMenu>
-                        <SidebarMenuItem>
-                            <SidebarMenuButton className="flex items-center gap-3">
-                                <Avatar className="h-8 w-8">
-                                    <AvatarImage
-                                        alt="User"
-                                        src="/placeholder.svg?height=40&width=40"
-                                    />
-                                    <AvatarFallback>U</AvatarFallback>
-                                </Avatar>
-                                <div className="flex flex-col">
-                                    <span className="font-medium">
-                                        Your Name
-                                    </span>
-                                    <span className="text-xs text-muted-foreground">
-                                        Student
-                                    </span>
-                                </div>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                    </SidebarMenu>
-                </SidebarFooter>
-            </Sidebar>
-            <div className="flex-1 flex flex-col p-4">
-                <SidebarTrigger className="mb-4 md:hidden" />
-                <div className="flex-grow rounded-lg border border-zinc-200/50 dark:border-zinc-800 p-4 mb-4 overflow-y-auto">
-                    {selectedTutor ? (
-                        <>
-                            <div className="mb-2 text-sm text-muted-foreground">
-                                Chat with{" "}
-                                {
-                                    tutors.find((t) => t.id === selectedTutor)
-                                        ?.name
-                                }
-                            </div>
-                            <div className="space-y-4">
-                                <MessageCard message="Hello! How can I help you today?" />
-                                {/* <div className="p-2 rounded bg-gray-100 dark:bg-gray-700">
-                                    Hello! How can I help you today?
-                                </div> */}
-                            </div>
-                        </>
-                    ) : (
-                        <div className="text-center text-lg font-semibold">
-                            Please select a tutor to start chatting.
-                        </div>
-                    )}
                 </div>
-                {selectedTutor && (
-                    <div className="flex items-center gap-2">
-                        <Input
-                            className="flex-1 rounded p-2 focus:outline-none focus:ring"
-                            endContent={
-                                <HeroUIButton
-                                    className="px-4 py-2"
-                                    color="primary"
-                                    endContent={
-                                        <Icon
-                                            className="h-4 w-4"
-                                            icon="lucide:send"
-                                        />
-                                    }
-                                    variant="shadow"
-                                >
-                                    Send
-                                </HeroUIButton>
-                            }
-                            placeholder="Type your message..."
-                            size="lg"
-                            type="text"
-                            variant="bordered"
-                        />
-                    </div>
-                )}
-            </div>
-        </SidebarProvider>
+            </SidebarContent>
+
+            <SidebarFooter>
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton className="flex items-center gap-3">
+                            <Avatar className="h-8 w-8">
+                                <AvatarImage
+                                    alt="User"
+                                    src="/placeholder.svg?height=40&width=40"
+                                />
+                                <AvatarFallback>U</AvatarFallback>
+                            </Avatar>
+                            <div className="flex flex-col">
+                                <span className="font-medium">Your Name</span>
+                                <span className="text-xs text-muted-foreground">
+                                    Student
+                                </span>
+                            </div>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+            </SidebarFooter>
+        </Sidebar>
     );
 }

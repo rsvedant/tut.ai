@@ -1,62 +1,119 @@
-import { Link } from "@heroui/link";
-import { Snippet } from "@heroui/snippet";
-import { Code } from "@heroui/code";
-import { button as buttonStyles } from "@heroui/theme";
+"use client";
 
-import { siteConfig } from "@/config/site";
-import { title, subtitle } from "@/components/primitives";
-import { GithubIcon } from "@/components/icons";
+import { Button as HeroUIButton } from "@heroui/button";
+import { Input } from "@heroui/input";
+import { Icon } from "@iconify/react";
+
+import MessageCard from "@/components/ai/ai-message";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+
+const tutors = [
+    {
+        id: "1",
+        name: "Dr. Smith",
+        subject: "Mathematics",
+        avatar: "/placeholder.svg?height=40&width=40",
+        online: true,
+    },
+    {
+        id: "2",
+        name: "Prof. Johnson",
+        subject: "Physics",
+        avatar: "/placeholder.svg?height=40&width=40",
+        online: true,
+    },
+    {
+        id: "3",
+        name: "Ms. Williams",
+        subject: "Chemistry",
+        avatar: "/placeholder.svg?height=40&width=40",
+        online: false,
+    },
+    {
+        id: "4",
+        name: "Mr. Davis",
+        subject: "Biology",
+        avatar: "/placeholder.svg?height=40&width=40",
+        online: true,
+    },
+];
+
+const chats = [
+    {
+        id: "1",
+        tutorId: "1",
+        title: "Calculus Help",
+        lastMessage: "Can you explain derivatives?",
+        timestamp: "2h ago",
+        unread: true,
+    },
+    {
+        id: "2",
+        tutorId: "2",
+        title: "Quantum Mechanics",
+        lastMessage: "I need help with wave functions",
+        timestamp: "1d ago",
+        unread: false,
+    },
+    {
+        id: "3",
+        tutorId: "1",
+        title: "Linear Algebra",
+        lastMessage: "Matrix multiplication question",
+        timestamp: "3d ago",
+        unread: false,
+    },
+];
 
 export default function Home() {
+    const selectedTutor = "Donkey Kong";
+
     return (
-        <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
-            <div className="inline-block max-w-xl text-center justify-center">
-                <span className={title()}>Make&nbsp;</span>
-                <span className={title({ color: "violet" })}>
-                    beautiful&nbsp;
-                </span>
-                <br />
-                <span className={title()}>
-                    websites regardless of your design experience.
-                </span>
-                <div className={subtitle({ class: "mt-4" })}>
-                    Beautiful, fast and modern React UI library.
+        <div className="flex-1 flex flex-col p-4">
+            <SidebarTrigger className="mb-4 md:hidden" />
+            <div className="flex-grow rounded-lg border border-zinc-200/50 dark:border-zinc-800 p-4 mb-20 overflow-y-auto">
+                {selectedTutor ? (
+                    <>
+                        <div className="mb-2 text-sm text-muted-foreground">
+                            Chat with{" "}
+                            {tutors.find((t) => t.id === selectedTutor)?.name}
+                        </div>
+                        <div className="space-y-4">
+                            <MessageCard message="Hello! How can I help you today?" />
+                            {/* <div className="p-2 rounded bg-gray-100 dark:bg-gray-700">
+                                Hello! How can I help you today?
+                            </div> */}
+                        </div>
+                    </>
+                ) : (
+                    <div className="text-center text-lg font-semibold">
+                        Please select a tutor to start chatting.
+                    </div>
+                )}
+            </div>
+            {selectedTutor && (
+                <div className="sticky bottom-0 bg-white dark:bg-zinc-900 p-4">
+                    <div className="flex items-center gap-2">
+                        <Input
+                            className="flex-1 rounded p-2 focus:outline-none focus:ring"
+                            endContent={
+                                <HeroUIButton
+                                    className="px-4 py-2"
+                                    color="primary"
+                                    endContent={<Icon className="h-4 w-4" icon="lucide:send" />}
+                                    variant="shadow"
+                                >
+                                    Send
+                                </HeroUIButton>
+                            }
+                            placeholder="Type your message..."
+                            size="lg"
+                            type="text"
+                            variant="bordered"
+                        />
+                    </div>
                 </div>
-            </div>
-
-            <div className="flex gap-3">
-                <Link
-                    isExternal
-                    className={buttonStyles({
-                        color: "primary",
-                        radius: "full",
-                        variant: "shadow",
-                    })}
-                    href={siteConfig.links.docs}
-                >
-                    Documentation
-                </Link>
-                <Link
-                    isExternal
-                    className={buttonStyles({
-                        variant: "bordered",
-                        radius: "full",
-                    })}
-                    href={siteConfig.links.github}
-                >
-                    <GithubIcon size={20} />
-                    GitHub
-                </Link>
-            </div>
-
-            <div className="mt-8">
-                <Snippet hideCopyButton hideSymbol variant="bordered">
-                    <span>
-                        Get started by editing{" "}
-                        <Code color="primary">app/page.tsx</Code>
-                    </span>
-                </Snippet>
-            </div>
-        </section>
+            )}
+        </div>
     );
 }

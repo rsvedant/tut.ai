@@ -1,14 +1,12 @@
 import "@/styles/globals.css";
-import { Metadata, Viewport } from "next";
-import { Link } from "@heroui/link";
 import clsx from "clsx";
+import { Metadata, Viewport } from "next";
 
 import { Providers } from "./providers";
 
-import { siteConfig } from "@/config/site";
-import { fontSans } from "@/config/fonts";
-import { Navbar } from "@/components/navbar";
 import { ChatSidebar } from "@/components/sidebar";
+import { fontSans } from "@/config/fonts";
+import { siteConfig } from "@/config/site";
 
 export const metadata: Metadata = {
     title: {
@@ -45,13 +43,10 @@ export default function RootLayout({
                 <Providers
                     themeProps={{ attribute: "class", defaultTheme: "dark" }}
                 >
-                    <div className="relative flex flex-col h-screen">
-                        {/* Make this blocked off for unauthed users */}
-                        <ChatSidebar />
-                        <main className="container mx-auto max-w-7xl pt-16 px-6 flex-grow">
-                            {children}
-                        </main>
-                    </div>
+                    <ChatSidebar />
+                    <main className="container mx-auto max-w-7xl pt-16 px-6 flex-grow">
+                        {children}
+                    </main>
                 </Providers>
             </body>
         </html>
