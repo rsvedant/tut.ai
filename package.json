@@ -49,7 +49,8 @@
         "remark-gfm": "^4.0.1",
         "tailwind-merge": "^3.0.2",
         "tailwindcss-animate": "^1.0.7",
-        "uuid4": "^2.0.3"
+        "uuid4": "^2.0.3",
+        "yallist": "^5.0.0"
     },
     "devDependencies": {
         "@next/eslint-plugin-next": "15.0.4",
