@@ -7,20 +7,24 @@ export default function AuthCheck({ children }: { children: React.ReactNode }) {
 
     console.log(session, status);
 
-    if (status === 'loading') {
-        return <>Loading...</>
+    if (status === "loading") {
+        return <>Loading...</>;
     }
 
-    if (status === 'authenticated') {
-        return <>{children}</>
+    if (status === "authenticated") {
+        return <>{children}</>;
     } else {
-        return <>
-            <div className="flex items-center justify-center h-screen">
-                <div className="bg-gray-800 text-white p-8 rounded-lg">
-                    <h2 className="text-2xl font-bold mb-4">Not signed in</h2>
-                    <p>Please sign in first to see this content.</p>
+        return (
+            <>
+                <div className="flex items-center justify-center h-screen">
+                    <div className="bg-gray-800 text-white p-8 rounded-lg">
+                        <h2 className="text-2xl font-bold mb-4">
+                            Not signed in
+                        </h2>
+                        <p>Please sign in first to see this content.</p>
+                    </div>
                 </div>
-            </div>
-        </>
+            </>
+        );
     }
 }

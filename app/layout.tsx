@@ -7,7 +7,7 @@ import { Providers } from "./providers";
 import { ChatSidebar } from "@/components/sidebar";
 import { fontSans } from "@/config/fonts";
 import { siteConfig } from "@/config/site";
-import AuthProvider from '@/components/auth/auth-provider';
+import AuthProvider from "@/components/auth/auth-provider";
 
 export const metadata: Metadata = {
     title: {
@@ -43,7 +43,10 @@ export default function RootLayout({
                     )}
                 >
                     <Providers
-                        themeProps={{ attribute: "class", defaultTheme: "dark" }}
+                        themeProps={{
+                            attribute: "class",
+                            defaultTheme: "dark",
+                        }}
                     >
                         <ChatSidebar />
                         <main className="container mx-auto max-w-7xl pt-16 px-6 flex-grow">

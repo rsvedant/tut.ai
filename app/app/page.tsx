@@ -170,8 +170,8 @@ export default function Home() {
                                 message={
                                     <>
                                         <p>
-                                            I&apos;d be happy to help you understand
-                                            derivatives!
+                                            I&apos;d be happy to help you
+                                            understand derivatives!
                                         </p>
                                         <p className="mt-2">
                                             A derivative measures the rate at
@@ -179,8 +179,8 @@ export default function Home() {
                                             specific point. Imagine you&apos;re
                                             driving a car and the speedometer
                                             shows your speed at each moment -
-                                            that&apos;s like a derivative. It tells
-                                            you how fast your position is
+                                            that&apos;s like a derivative. It
+                                            tells you how fast your position is
                                             changing.
                                         </p>
                                         <p className="mt-2">
