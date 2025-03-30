@@ -7,9 +7,9 @@ import { motion } from "framer-motion";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { LoginHandler } from "@/components/ui/login";
-import { useRouter } from "next/navigation";
 
 const FeatureCard = ({
     icon,
@@ -68,7 +68,7 @@ const TestimonialCard = ({
 
 export default function Home() {
     const { status } = useSession();
-    const router = useRouter()
+    const router = useRouter();
 
     if (status == "loading") {
         return <div>Loading g...</div>;
@@ -459,6 +459,6 @@ export default function Home() {
             </div>
         );
     } else if (status == "authenticated") {
-        router.push("/app")
+        router.push("/app");
     }
 }
