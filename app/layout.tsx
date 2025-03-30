@@ -1,9 +1,11 @@
 import "@/styles/globals.css";
 import clsx from "clsx";
 import { Metadata, Viewport } from "next";
+import { useSession } from "next-auth/react";
 
 import { Providers } from "./providers";
 
+import { ChatSidebar } from "@/components/sidebar";
 import { fontSans } from "@/config/fonts";
 import { siteConfig } from "@/config/site";
 
@@ -30,6 +32,8 @@ export default function RootLayout({
 }: {
     children: React.ReactNode;
 }) {
+    // const { status } = useSession();
+
     return (
         <html suppressHydrationWarning lang="en">
             <head />
@@ -45,6 +49,8 @@ export default function RootLayout({
                         defaultTheme: "dark",
                     }}
                 >
+                    <ChatSidebar />
+                    {/* {status == "authenticated" ? <ChatSidebar /> : <></>} */}
                     <main className="container mx-auto max-w-7xl pt-16 px-6 flex-grow">
                         {children}
                     </main>

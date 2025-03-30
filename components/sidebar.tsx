@@ -6,6 +6,7 @@ import {
     MessageSquarePlus,
     PlusCircle,
 } from "lucide-react";
+import { useSession } from "next-auth/react";
 import * as React from "react";
 
 import { useTutor } from "./tutor-provider";
@@ -89,6 +90,7 @@ const chats = [
 
 // Use the hook in the component
 export function ChatSidebar() {
+    const { status } = useSession();
     const { selectedTutor, setSelectedTutor } = useTutor();
     const [searchQuery, setSearchQuery] = React.useState("");
     const [view, setView] = React.useState<"tutors" | "chats">("tutors");
@@ -130,6 +132,10 @@ export function ChatSidebar() {
         console.log("Creating new chat with tutor:", selectedTutor);
         // Implement your new chat creation logic here
     };
+
+    if (status !== "authenticated") {
+        return <></>;
+    }
 
     return (
         <Sidebar>
