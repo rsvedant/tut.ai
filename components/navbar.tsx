@@ -58,7 +58,9 @@ export const Navbar = () => {
                         href="/"
                     >
                         <Logo />
-                        <p className="font-bold text-inherit">tut<span className="text-primary">.ai</span></p>
+                        <p className="font-bold text-inherit">
+                            tut<span className="text-primary">.ai</span>
+                        </p>
                     </NextLink>
                 </NavbarBrand>
                 <ul className="hidden lg:flex gap-4 justify-start ml-2">

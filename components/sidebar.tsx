@@ -86,7 +86,6 @@ const chats = [
     },
 ];
 
-
 // Use the hook in the component
 export function ChatSidebar() {
     const { selectedTutor, setSelectedTutor } = useTutor();
@@ -156,10 +155,11 @@ export function ChatSidebar() {
                 <div className="relative overflow-hidden">
                     {/* Tutors View */}
                     <div
-                        className={`transition-all duration-300 ${view === "tutors"
+                        className={`transition-all duration-300 ${
+                            view === "tutors"
                                 ? "translate-x-0 opacity-100"
                                 : "-translate-x-full absolute opacity-0"
-                            } ${isAnimating ? "pointer-events-none" : ""}`}
+                        } ${isAnimating ? "pointer-events-none" : ""}`}
                     >
                         <SidebarGroup>
                             <SidebarGroupLabel className="flex justify-between items-center">
@@ -219,10 +219,11 @@ export function ChatSidebar() {
 
                     {/* Chats View */}
                     <div
-                        className={`transition-all duration-300 ${view === "chats"
+                        className={`transition-all duration-300 ${
+                            view === "chats"
                                 ? "translate-x-0 opacity-100"
                                 : "translate-x-full absolute opacity-0"
-                            } ${isAnimating ? "pointer-events-none" : ""}`}
+                        } ${isAnimating ? "pointer-events-none" : ""}`}
                     >
                         <SidebarGroup>
                             <SidebarGroupLabel className="flex items-center gap-2">
