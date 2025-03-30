@@ -1,5 +1,6 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import {
     ArrowLeft,
     BookOpen,
@@ -30,72 +31,38 @@ import {
 } from "@/components/ui/sidebar";
 
 // Sample data for tutors and chats
-const tutors = [
-    {
-        id: "1",
-        name: "Dr. Smith",
-        subject: "Mathematics",
-        avatar: "/placeholder.svg?height=40&width=40",
-        online: true,
-    },
-    {
-        id: "2",
-        name: "Prof. Johnson",
-        subject: "Physics",
-        avatar: "/placeholder.svg?height=40&width=40",
-        online: true,
-    },
-    {
-        id: "3",
-        name: "Ms. Williams",
-        subject: "Chemistry",
-        avatar: "/placeholder.svg?height=40&width=40",
-        online: false,
-    },
-    {
-        id: "4",
-        name: "Mr. Davis",
-        subject: "Biology",
-        avatar: "/placeholder.svg?height=40&width=40",
-        online: true,
-    },
-];
-
-const chats = [
-    {
-        id: "1",
-        tutorId: "1",
-        title: "Calculus Help",
-        lastMessage: "Can you explain derivatives?",
-        timestamp: "2h ago",
-        unread: true,
-    },
-    {
-        id: "2",
-        tutorId: "2",
-        title: "Quantum Mechanics",
-        lastMessage: "I need help with wave functions",
-        timestamp: "1d ago",
-        unread: false,
-    },
-    {
-        id: "3",
-        tutorId: "1",
-        title: "Linear Algebra",
-        lastMessage: "Matrix multiplication question",
-        timestamp: "3d ago",
-        unread: false,
-    },
-];
-
-// Use the hook in the component
 export function ChatSidebar() {
     const { status } = useSession();
     const { selectedTutor, setSelectedTutor } = useTutor();
     const [searchQuery, setSearchQuery] = React.useState("");
     const [view, setView] = React.useState<"tutors" | "chats">("tutors");
     const [isAnimating, setIsAnimating] = React.useState(false);
+    const { data: tutors } = useQuery({
+        queryKey: ["tutors"],
+        queryFn: async () => {
+            const response = await fetch("/api/tutors");
 
+            if (!response.ok) {
+                throw new Error("Failed to fetch tutors");
+            }
+
+            return response.json();
+        },
+        initialData: [],
+    });
+    const { data: chats } = useQuery({
+        queryKey: ["chats"],
+        queryFn: async () => {
+            const response = await fetch("/api/chats");
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch chats");
+            }
+
+            return response.json();
+        },
+        initialData: [],
+    });
     // Filter chats based on selected tutor
     const filteredChats = selectedTutor
         ? chats.filter((chat) => chat.tutorId === selectedTutor)

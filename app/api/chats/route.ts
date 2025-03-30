@@ -2,7 +2,7 @@ import { randomUUID } from "crypto";
 
 import { NextRequest, NextResponse } from "next/server";
 
-import clientPromise from "../../../lib/mongodb";
+// import clientPromise from "../../../lib/mongodb";
 
 const createChat = async ({
     messages,
@@ -17,12 +17,12 @@ const createChat = async ({
         id: randomUUID(),
         // title: generate,
     };
-    const client = await clientPromise;
-    const db = client.db("chats");
-    const collection = db.collection("chats");
-    const result = await collection.insertOne(chat);
+    // const client = await clientPromise;
+    // const db = client.db("chats");
+    // const collection = db.collection("chats");
+    // const result = await collection.insertOne(chat);
 
-    return result;
+    // return result;
 };
 
 export const POST = async (req: NextRequest): Promise<NextResponse> => {

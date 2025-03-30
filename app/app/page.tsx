@@ -5,74 +5,88 @@ import { Button as HeroUIButton } from "@heroui/button";
 import { Input } from "@heroui/input";
 import { Tooltip } from "@heroui/tooltip";
 import { Icon } from "@iconify/react";
+import { useQuery } from "@tanstack/react-query";
 import React from "react";
 
 import MessageCard from "@/components/ai/ai-message";
 import { useTutor } from "@/components/tutor-provider";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 
-const tutors = [
-    {
-        id: "1",
-        name: "Dr. Smith",
-        subject: "Mathematics",
-        avatar: "/placeholder.svg?height=40&width=40",
-        online: true,
-    },
-    {
-        id: "2",
-        name: "Prof. Johnson",
-        subject: "Physics",
-        avatar: "/placeholder.svg?height=40&width=40",
-        online: true,
-    },
-    {
-        id: "3",
-        name: "Ms. Williams",
-        subject: "Chemistry",
-        avatar: "/placeholder.svg?height=40&width=40",
-        online: false,
-    },
-    {
-        id: "4",
-        name: "Mr. Davis",
-        subject: "Biology",
-        avatar: "/placeholder.svg?height=40&width=40",
-        online: true,
-    },
-];
+// const tutors = [
+//     {
+//         id: "1",
+//         name: "Dr. Smith",
+//         subject: "Mathematics",
+//         avatar: "/placeholder.svg?height=40&width=40",
+//         online: true,
+//     },
+//     {
+//         id: "2",
+//         name: "Prof. Johnson",
+//         subject: "Physics",
+//         avatar: "/placeholder.svg?height=40&width=40",
+//         online: true,
+//     },
+//     {
+//         id: "3",
+//         name: "Ms. Williams",
+//         subject: "Chemistry",
+//         avatar: "/placeholder.svg?height=40&width=40",
+//         online: false,
+//     },
+//     {
+//         id: "4",
+//         name: "Mr. Davis",
+//         subject: "Biology",
+//         avatar: "/placeholder.svg?height=40&width=40",
+//         online: true,
+//     },
+// ];
 
-const chats = [
-    {
-        id: "1",
-        tutorId: "1",
-        title: "Calculus Help",
-        lastMessage: "Can you explain derivatives?",
-        timestamp: "2h ago",
-        unread: true,
-    },
-    {
-        id: "2",
-        tutorId: "2",
-        title: "Quantum Mechanics",
-        lastMessage: "I need help with wave functions",
-        timestamp: "1d ago",
-        unread: false,
-    },
-    {
-        id: "3",
-        tutorId: "1",
-        title: "Linear Algebra",
-        lastMessage: "Matrix multiplication question",
-        timestamp: "3d ago",
-        unread: false,
-    },
-];
+// const chats = [
+//     {
+//         id: "1",
+//         tutorId: "1",
+//         title: "Calculus Help",
+//         lastMessage: "Can you explain derivatives?",
+//         timestamp: "2h ago",
+//         unread: true,
+//     },
+//     {
+//         id: "2",
+//         tutorId: "2",
+//         title: "Quantum Mechanics",
+//         lastMessage: "I need help with wave functions",
+//         timestamp: "1d ago",
+//         unread: false,
+//     },
+//     {
+//         id: "3",
+//         tutorId: "1",
+//         title: "Linear Algebra",
+//         lastMessage: "Matrix multiplication question",
+//         timestamp: "3d ago",
+//         unread: false,
+//     },
+// ];
 
 export default function Home() {
     const { selectedTutor } = useTutor(); // Changed to match a valid tutor ID
     const [message, setMessage] = React.useState("");
     const chatContainerRef = React.useRef<HTMLDivElement>(null);
+    const { data: tutors } = useQuery({
+        queryKey: ["tutors"],
+        queryFn: async () => {
+            const response = await fetch("/api/tutors");
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch tutors");
+            }
+
+            return response.json();
+        },
+        initialData: [],
+    });
 
     const currentTutor = tutors.find((t) => t.id === selectedTutor);
 
