@@ -4,10 +4,8 @@ import { Metadata, Viewport } from "next";
 
 import { Providers } from "./providers";
 
-import { ChatSidebar } from "@/components/sidebar";
 import { fontSans } from "@/config/fonts";
 import { siteConfig } from "@/config/site";
-import AuthProvider from "@/components/auth/auth-provider";
 
 export const metadata: Metadata = {
     title: {
@@ -33,27 +31,25 @@ export default function RootLayout({
     children: React.ReactNode;
 }) {
     return (
-        <AuthProvider>
-            <html suppressHydrationWarning lang="en">
-                <head />
-                <body
-                    className={clsx(
-                        "min-h-screen bg-background font-sans antialiased",
-                        fontSans.variable,
-                    )}
+        <html suppressHydrationWarning lang="en">
+            <head />
+            <body
+                className={clsx(
+                    "min-h-screen bg-background font-sans antialiased",
+                    fontSans.variable,
+                )}
+            >
+                <Providers
+                    themeProps={{
+                        attribute: "class",
+                        defaultTheme: "dark",
+                    }}
                 >
-                    <Providers
-                        themeProps={{
-                            attribute: "class",
-                            defaultTheme: "dark",
-                        }}
-                    >
-                        <main className="container mx-auto max-w-7xl pt-16 px-6 flex-grow">
-                            {children}
-                        </main>
-                    </Providers>
-                </body>
-            </html>
-        </AuthProvider>
+                    <main className="container mx-auto max-w-7xl pt-16 px-6 flex-grow">
+                        {children}
+                    </main>
+                </Providers>
+            </body>
+        </html>
     );
 }
