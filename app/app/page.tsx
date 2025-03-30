@@ -8,6 +8,7 @@ import { Icon } from "@iconify/react";
 import React from "react";
 
 import MessageCard from "@/components/ai/ai-message";
+import { useTutor } from "@/components/tutor-provider";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 
 const tutors = [
@@ -69,7 +70,7 @@ const chats = [
 ];
 
 export default function Home() {
-    const selectedTutor = "1"; // Changed to match a valid tutor ID
+    const { selectedTutor } = useTutor(); // Changed to match a valid tutor ID
     const [message, setMessage] = React.useState("");
     const chatContainerRef = React.useRef<HTMLDivElement>(null);
 
