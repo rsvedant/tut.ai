@@ -3,12 +3,13 @@
 import type { ThemeProviderProps } from "next-themes";
 
 import { HeroUIProvider } from "@heroui/system";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { useRouter } from "next/navigation";
 import * as React from "react";
 
+import { TutorProvider } from "@/components/tutor-provider";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 export interface ProvidersProps {
     children: React.ReactNode;
@@ -25,16 +26,17 @@ declare module "@react-types/shared" {
 
 export function Providers({ children, themeProps }: ProvidersProps) {
     const router = useRouter();
-    const client = new QueryClient()
+    const client = new QueryClient();
 
     return (
         <QueryClientProvider client={client}>
-            <HeroUIProvider navigate={router.push}>
-                <NextThemesProvider {...themeProps}>
-                    <SidebarProvider>{children}</SidebarProvider>
-                </NextThemesProvider>
-            </HeroUIProvider>
+            <TutorProvider>
+                <HeroUIProvider navigate={router.push}>
+                    <NextThemesProvider {...themeProps}>
+                        <SidebarProvider>{children}</SidebarProvider>
+                    </NextThemesProvider>
+                </HeroUIProvider>
+            </TutorProvider>
         </QueryClientProvider>
-
     );
 }
