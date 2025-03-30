@@ -25,6 +25,7 @@ import {
     SearchIcon,
     Logo,
 } from "@/components/icons";
+import { LoginHandler } from "@/components/ui/login";
 
 export const Navbar = () => {
     const searchInput = (
@@ -57,7 +58,7 @@ export const Navbar = () => {
                         href="/"
                     >
                         <Logo />
-                        <p className="font-bold text-inherit">ACME</p>
+                        <p className="font-bold text-inherit">tut<span className="text-primary">.ai</span></p>
                     </NextLink>
                 </NavbarBrand>
                 <ul className="hidden lg:flex gap-4 justify-start ml-2">
@@ -110,18 +111,7 @@ export const Navbar = () => {
                     {searchInput}
                 </NavbarItem>
                 <NavbarItem className="hidden md:flex">
-                    <Button
-                        isExternal
-                        as={Link}
-                        className="text-sm font-normal text-default-600 bg-default-100"
-                        href={siteConfig.links.sponsor}
-                        startContent={
-                            <HeartFilledIcon className="text-danger" />
-                        }
-                        variant="flat"
-                    >
-                        Sponsor
-                    </Button>
+                    <LoginHandler />
                 </NavbarItem>
             </NavbarContent>
 

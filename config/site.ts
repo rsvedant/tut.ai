@@ -1,25 +1,25 @@
 export type SiteConfig = typeof siteConfig;
 
 export const siteConfig = {
-    name: "Next.js + HeroUI",
+    name: "tut.ai - AI-Powered Education",
     description:
-        "Make beautiful websites regardless of your design experience.",
+        "Transform your learning experience with personalized AI tutors across any subject.",
     navItems: [
         {
             label: "Home",
             href: "/",
         },
         {
-            label: "Docs",
-            href: "/docs",
+            label: "Features",
+            href: "/features",
         },
         {
             label: "Pricing",
             href: "/pricing",
         },
         {
-            label: "Blog",
-            href: "/blog",
+            label: "Subjects",
+            href: "/subjects",
         },
         {
             label: "About",
@@ -28,32 +28,28 @@ export const siteConfig = {
     ],
     navMenuItems: [
         {
+            label: "Dashboard",
+            href: "/app",
+        },
+        {
             label: "Profile",
             href: "/profile",
         },
         {
-            label: "Dashboard",
-            href: "/dashboard",
-        },
-        {
-            label: "Projects",
-            href: "/projects",
-        },
-        {
-            label: "Team",
-            href: "/team",
-        },
-        {
-            label: "Calendar",
-            href: "/calendar",
+            label: "My Tutors",
+            href: "/tutors",
         },
         {
             label: "Settings",
             href: "/settings",
         },
         {
-            label: "Help & Feedback",
-            href: "/help-feedback",
+            label: "Help & Support",
+            href: "/help",
+        },
+        {
+            label: "Feedback",
+            href: "/feedback",
         },
         {
             label: "Logout",
@@ -61,10 +57,10 @@ export const siteConfig = {
         },
     ],
     links: {
-        github: "https://github.com/heroui-inc/heroui",
-        twitter: "https://twitter.com/hero_ui",
-        docs: "https://heroui.com",
-        discord: "https://discord.gg/9b6yyZKmH4",
-        sponsor: "https://patreon.com/jrgarciadev",
+        github: "https://github.com/rsvedant/tut.ai",
+        twitter: "https://twitter.com/tut_ai",
+        docs: "https://docs.tut.ai",
+        discord: "https://discord.gg/tut-ai",
+        sponsor: "https://tut.ai/sponsor",
     },
 };
