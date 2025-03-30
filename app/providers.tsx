@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import * as React from "react";
 
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 export interface ProvidersProps {
     children: React.ReactNode;
@@ -24,12 +25,16 @@ declare module "@react-types/shared" {
 
 export function Providers({ children, themeProps }: ProvidersProps) {
     const router = useRouter();
+    const client = new QueryClient()
 
     return (
-        <HeroUIProvider navigate={router.push}>
-            <NextThemesProvider {...themeProps}>
-                <SidebarProvider>{children}</SidebarProvider>
-            </NextThemesProvider>
-        </HeroUIProvider>
+        <QueryClientProvider client={client}>
+            <HeroUIProvider navigate={router.push}>
+                <NextThemesProvider {...themeProps}>
+                    <SidebarProvider>{children}</SidebarProvider>
+                </NextThemesProvider>
+            </HeroUIProvider>
+        </QueryClientProvider>
+
     );
 }
