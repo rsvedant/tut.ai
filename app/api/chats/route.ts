@@ -69,7 +69,7 @@ export const POST = async (req: NextRequest): Promise<Response> => {
 
     const customOpenAI = createOpenAI({
         baseURL: "https://api.studio.nebius.com/v1/",
-        apiKey: process.env.OPENAI_API_KEY,
+        apiKey: process.env.NEBIUS_API_KEY,
         compatibility: "compatible",
     });
 
