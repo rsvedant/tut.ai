@@ -1,7 +1,6 @@
 import "@/styles/globals.css";
 import clsx from "clsx";
 import { Metadata, Viewport } from "next";
-import { useSession } from "next-auth/react";
 
 import { Providers } from "./providers";
 
@@ -51,7 +50,7 @@ export default function RootLayout({
                 >
                     <ChatSidebar />
                     {/* {status == "authenticated" ? <ChatSidebar /> : <></>} */}
-                    <main className="container mx-auto max-w-7xl pt-16 px-6 flex-grow">
+                    <main className="container mx-auto pt-16  flex-grow">
                         {children}
                     </main>
                 </Providers>

@@ -8,6 +8,7 @@ import {
     PlusCircle,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
 import * as React from "react";
 
 import { useTutor } from "./tutor-provider";
@@ -29,11 +30,10 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { usePathname } from "next/navigation";
 
 // Sample data for tutors and chats
 export function ChatSidebar() {
-    const pathname = usePathname()
+    const pathname = usePathname();
     const { status } = useSession();
     const { selectedTutor, setSelectedTutor } = useTutor();
     const [searchQuery, setSearchQuery] = React.useState("");
@@ -101,6 +101,7 @@ export function ChatSidebar() {
         console.log("Creating new chat with tutor:", selectedTutor);
         // Implement your new chat creation logic here
     };
+
     if (pathname == "/") {
         return <></>;
     }
@@ -133,11 +134,10 @@ export function ChatSidebar() {
                 <div className="relative overflow-hidden">
                     {/* Tutors View */}
                     <div
-                        className={`transition-all duration-300 ${
-                            view === "tutors"
+                        className={`transition-all duration-300 ${view === "tutors"
                                 ? "translate-x-0 opacity-100"
                                 : "-translate-x-full absolute opacity-0"
-                        } ${isAnimating ? "pointer-events-none" : ""}`}
+                            } ${isAnimating ? "pointer-events-none" : ""}`}
                     >
                         <SidebarGroup>
                             <SidebarGroupLabel className="flex justify-between items-center">
@@ -197,11 +197,10 @@ export function ChatSidebar() {
 
                     {/* Chats View */}
                     <div
-                        className={`transition-all duration-300 ${
-                            view === "chats"
+                        className={`transition-all duration-300 ${view === "chats"
                                 ? "translate-x-0 opacity-100"
                                 : "translate-x-full absolute opacity-0"
-                        } ${isAnimating ? "pointer-events-none" : ""}`}
+                            } ${isAnimating ? "pointer-events-none" : ""}`}
                     >
                         <SidebarGroup>
                             <SidebarGroupLabel className="flex items-center gap-2">
