@@ -99,6 +99,8 @@ export function ChatSidebar() {
         }, 50);
     };
     const router = useRouter();
+
+    router.prefetch("/app");
     // Handle new chat creation
     const handleNewChat = () => {
         handleTutorSelect(selectedTutor || "");
