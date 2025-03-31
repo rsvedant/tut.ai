@@ -1,5 +1,6 @@
 "use client";
 
+import { useChat } from "@ai-sdk/react";
 import { Avatar } from "@heroui/avatar";
 import { Button as HeroUIButton } from "@heroui/button";
 import { Input } from "@heroui/input";
@@ -8,7 +9,6 @@ import { Icon } from "@iconify/react";
 import { useQuery } from "@tanstack/react-query";
 import React from "react";
 
-import MessageCard from "@/components/ai/ai-message";
 import { useTutor } from "@/components/tutor-provider";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 
@@ -72,7 +72,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export default function Home() {
     const { selectedTutor } = useTutor(); // Changed to match a valid tutor ID
-    const [message, setMessage] = React.useState("");
+    // const [message, setMessage] = React.useState("");
     const chatContainerRef = React.useRef<HTMLDivElement>(null);
     const { data: tutors } = useQuery({
         queryKey: ["tutors"],
@@ -96,6 +96,13 @@ export default function Home() {
             setMessage("");
         }
     };
+    const {
+        handleSubmit,
+        input: message,
+        setInput: setMessage,
+    } = useChat({
+        api: "/chats",
+    });
 
     return (
         <div className="flex flex-col h-[calc(100vh-8rem)] w-full max-w-6xl mx-auto mb-6">
@@ -163,7 +170,7 @@ export default function Home() {
                             ref={chatContainerRef}
                             className="flex-1 overflow-y-auto px-5 py-6 space-y-8 bg-gradient-to-b from-zinc-50 to-white dark:from-zinc-900 dark:to-zinc-950 scroll-smooth"
                         >
-                            <MessageCard
+                            {/* <MessageCard
                                 avatar={currentTutor?.avatar}
                                 message="Hello! How can I help you today with your mathematics questions?"
                                 showFeedback={true}
@@ -214,7 +221,7 @@ export default function Home() {
                                     </>
                                 }
                                 showFeedback={true}
-                            />
+                            /> */}
                         </div>
                         <div className="p-5 border-t border-zinc-200/50 dark:border-zinc-800 bg-white dark:bg-zinc-950">
                             <div className="flex items-center gap-2">
@@ -289,6 +296,11 @@ export default function Home() {
                             className="px-6"
                             color="primary"
                             size="lg"
+                            onPress={() =>
+                                handleSubmit({
+                                    // preventDefault
+                                })
+                            }
                         >
                             Start New Conversation
                         </HeroUIButton>
