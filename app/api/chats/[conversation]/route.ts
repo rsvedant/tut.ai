@@ -102,7 +102,7 @@ export const POST = async (
             prompt: [{ role: "user", content: message }],
         });
     // When the completion is done, we can update the conversation in the database
-    
+
     // Return the stream response
     return completion.stream;
 };
