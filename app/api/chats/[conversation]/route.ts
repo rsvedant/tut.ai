@@ -39,20 +39,10 @@ export const GET = async (
             { status: 404 },
         );
     }
-    const messages = chat.messages.map((message: any) => ({
-        role: message.role,
-        content: message.content,
-    }));
 
-    const completion = await api
-        .chat("deepseek-ai/DeepSeek-R1-Distill-Llama-70B")
-        .doStream({
-            inputFormat: "messages",
-            mode: { type: "regular" },
-            prompt: messages,
-        });
-
-    return new Response(completion.stream);
+    return NextResponse.json({
+        ...chat,
+    });
 };
 
 export const POST = async (
