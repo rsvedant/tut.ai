@@ -108,6 +108,23 @@ export const POST = async (
             messages: [...messages, ...chat.messages], // Correctly format messages
         });
 
+        result.text.then(async (text) => {
+            await client
+                .db("chats")
+                .collection("chats")
+                .updateOne(
+                    { id: conversation, owner: session.user?.email },
+                    {
+                        $push: {
+                            messages: {
+                                role: "assistant",
+                                content: text,
+                            } as any,
+                        },
+                    },
+                );
+        });
+
         return result.toDataStreamResponse();
     } catch (error) {
         console.error("Error in chat API:", error);
