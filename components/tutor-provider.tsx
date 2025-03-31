@@ -3,9 +3,9 @@ import React, { useEffect } from "react";
 // Create a context for tutor selection
 const TutorContext = React.createContext<
     | {
-        selectedTutor: string | null;
-        setSelectedTutor: React.Dispatch<React.SetStateAction<string | null>>;
-    }
+          selectedTutor: string | null;
+          setSelectedTutor: React.Dispatch<React.SetStateAction<string | null>>;
+      }
     | undefined
 >(undefined);
 

@@ -106,9 +106,7 @@ export default function Home() {
                         <ChatHeader tutor={currentTutor} />
                         <ChatMessages chatContainerRef={chatContainerRef} />
                         <ChatInput
-                            error={error}
                             handleSubmit={handleSubmit}
-                            isSubmitting={isSubmitting}
                             message={message}
                             setMessage={setMessage}
                         />

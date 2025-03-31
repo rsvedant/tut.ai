@@ -8,9 +8,13 @@ import React from "react";
 
 import PromptInput from "./prompt-input";
 
-export function ChatInput() {
-    const [prompt, setPrompt] = React.useState<string>("");
-
+export function ChatInput({
+    prompt,
+    setPrompt,
+}: {
+    prompt: string;
+    setPrompt: React.Dispatch<React.SetStateAction<string>>;
+}) {
     return (
         <form className="flex w-full items-start gap-2">
             <PromptInput

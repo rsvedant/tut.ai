@@ -157,8 +157,8 @@ export function ChatSidebar() {
             .filter((chat: FrontendChat) =>
                 searchQuery
                     ? chat?.name
-                        ?.toLowerCase()
-                        .includes(searchQuery.toLowerCase())
+                          ?.toLowerCase()
+                          .includes(searchQuery.toLowerCase())
                     : true,
             );
     }, [chats, selectedTutor, searchQuery]);
@@ -168,11 +168,11 @@ export function ChatSidebar() {
         return tutors.filter((tutor: TutorModel) =>
             searchQuery
                 ? tutor.name
-                    .toLowerCase()
-                    .includes(searchQuery.toLowerCase()) ||
-                tutor.subject
-                    .toLowerCase()
-                    .includes(searchQuery.toLowerCase())
+                      .toLowerCase()
+                      .includes(searchQuery.toLowerCase()) ||
+                  tutor.subject
+                      .toLowerCase()
+                      .includes(searchQuery.toLowerCase())
                 : true,
         );
     }, [tutors, searchQuery]);
@@ -247,10 +247,11 @@ export function ChatSidebar() {
                 <div className="relative overflow-hidden">
                     {/* Tutors View */}
                     <div
-                        className={`transition-all duration-300 ${view === "tutors"
+                        className={`transition-all duration-300 ${
+                            view === "tutors"
                                 ? "translate-x-0 opacity-100"
                                 : "-translate-x-full absolute opacity-0"
-                            } ${isAnimating ? "pointer-events-none" : ""}`}
+                        } ${isAnimating ? "pointer-events-none" : ""}`}
                     >
                         <SidebarGroup>
                             <SidebarGroupLabel className="flex justify-between items-center">
@@ -300,10 +301,11 @@ export function ChatSidebar() {
                     </div>
                     {/* Chats View */}
                     <div
-                        className={`transition-all duration-300 ${view === "chats"
+                        className={`transition-all duration-300 ${
+                            view === "chats"
                                 ? "translate-x-0 opacity-100"
                                 : "translate-x-full absolute opacity-0"
-                            } ${isAnimating ? "pointer-events-none" : ""}`}
+                        } ${isAnimating ? "pointer-events-none" : ""}`}
                     >
                         <SidebarGroup>
                             <SidebarGroupLabel className="flex items-center gap-2">
