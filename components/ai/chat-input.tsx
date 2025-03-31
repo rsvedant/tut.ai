@@ -64,22 +64,6 @@ export function ChatInput() {
                 }
                 minRows={3}
                 radius="lg"
-                // startContent={
-                //     <Tooltip showArrow content="Add Image">
-                //         <Button
-                //             isIconOnly
-                //             radius="full"
-                //             size="sm"
-                //             variant="light"
-                //         >
-                //             <Icon
-                //                 className="text-default-500"
-                //                 icon="solar:gallery-minimalistic-linear"
-                //                 width={20}
-                //             />
-                //         </Button>
-                //     </Tooltip>
-                // }
                 value={prompt}
                 onValueChange={setPrompt}
             />
