@@ -1,11 +1,11 @@
 import type { NextAuthOptions } from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 import DiscordProvider from "next-auth/providers/discord";
-import { prisma } from "@/lib/utils/prisma";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { MongoDBAdapter } from "@auth/mongodb-adapter";
+import client from "@/lib/db";
 
 export const authOptions: NextAuthOptions = {
-    adapter: PrismaAdapter(prisma),
+    adapter: MongoDBAdapter(client),
     providers: [
         GithubProvider({
             clientId: process.env.GITHUB_ID!,
