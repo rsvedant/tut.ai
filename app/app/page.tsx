@@ -3,7 +3,7 @@ import { Icon } from "@iconify/react";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 
 import { ChatHeader, ChatInput, ChatMessages } from "@/components/ai/chat";
 import { useTutor } from "@/components/tutor-provider";
@@ -14,8 +14,46 @@ export default function Home() {
     const { status } = useSession();
     const { selectedTutor } = useTutor();
     const router = useRouter();
-    const handleSubmit = async () => {
+    const [message, setMessage] = React.useState("");
+    const [isSubmitting, setIsSubmitting] = React.useState(false);
+    const [error, setError] = React.useState<string | null>(null);
+    const chatContainerRef = React.useRef<HTMLDivElement>(null);
+
+    // Redirect unauthenticated users
+    useEffect(() => {
+        if (status === "unauthenticated") {
+            router.push("/auth/signin");
+        }
+    }, [status, router]);
+
+    // Fetch tutors with React Query
+    const { data: tutors = [], isLoading } = useQuery<TutorModel[]>({
+        queryKey: ["tutors"],
+        queryFn: async () => {
+            const response = await fetch("/api/tutors");
+
+            if (!response.ok) {
+                throw new Error("Failed to fetch tutors");
+            }
+
+            return response.json() as Promise<TutorModel[]>;
+        },
+        staleTime: 5 * 60 * 1000, // 5 minutes
+        retry: 2,
+    });
+
+    // Memoize the current tutor to prevent unnecessary re-renders
+    const currentTutor = useMemo(
+        () => tutors.find((t) => t.id === selectedTutor),
+        [tutors, selectedTutor],
+    );
+
+    // Handle message submission with useCallback
+    const handleSubmit = useCallback(async () => {
         if (!message || !selectedTutor) return;
+
+        setIsSubmitting(true);
+        setError(null);
 
         try {
             const response = await fetch("/api/chats", {
@@ -35,35 +73,28 @@ export default function Home() {
                 router.push(`/app/chats/${data.chatId}`);
                 setMessage("");
             } else {
-                console.error("Failed to create chat", response);
-                // Handle error appropriately (e.g., display an error message)
+                const errorData = await response.json();
+
+                setError(errorData.message || "Failed to create chat");
             }
         } catch (error) {
             console.error("Error creating chat:", error);
-            // Handle error appropriately
+            setError("An unexpected error occurred. Please try again.");
+        } finally {
+            setIsSubmitting(false);
         }
-    };
+    }, [message, selectedTutor, router]);
 
-    const [message, setMessage] = React.useState("");
-
-    const chatContainerRef = React.useRef<HTMLDivElement>(null);
-    const { data: tutors } = useQuery<TutorModel[]>({
-        queryKey: ["tutors"],
-        queryFn: async () => {
-            const response = await fetch("/api/tutors");
-
-            if (!response.ok) {
-                throw new Error("Failed to fetch tutors");
-            }
-
-            return response.json() as Promise<TutorModel[]>;
-        },
-        initialData: [],
-    });
-    const currentTutor = tutors.find((t) => t.id === selectedTutor);
-
-    if (status === "unauthenticated") {
-        router.push("/auth/signin");
+    // Loading state for tutors
+    if (isLoading) {
+        return (
+            <div className="flex flex-col h-[calc(100vh-8rem)] w-full max-w-6xl mx-auto mb-6 justify-center items-center">
+                <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                <p className="mt-4 text-zinc-500 dark:text-zinc-400">
+                    Loading tutors...
+                </p>
+            </div>
+        );
     }
 
     return (
@@ -75,7 +106,9 @@ export default function Home() {
                         <ChatHeader tutor={currentTutor} />
                         <ChatMessages chatContainerRef={chatContainerRef} />
                         <ChatInput
+                            error={error}
                             handleSubmit={handleSubmit}
+                            isSubmitting={isSubmitting}
                             message={message}
                             setMessage={setMessage}
                         />

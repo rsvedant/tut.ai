@@ -1,13 +1,12 @@
 "use client";
-
-import { FC } from "react";
-import { VisuallyHidden } from "@react-aria/visually-hidden";
 import { SwitchProps, useSwitch } from "@heroui/switch";
-import { useTheme } from "next-themes";
 import { useIsSSR } from "@react-aria/ssr";
+import { VisuallyHidden } from "@react-aria/visually-hidden";
 import clsx from "clsx";
+import { useTheme } from "next-themes";
+import { FC, useCallback, useEffect, useState } from "react";
 
-import { SunFilledIcon, MoonFilledIcon } from "@/components/icons";
+import { MoonFilledIcon, SunFilledIcon } from "@/components/icons";
 
 export interface ThemeSwitchProps {
     className?: string;
@@ -18,12 +17,21 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({
     className,
     classNames,
 }) => {
-    const { theme, setTheme } = useTheme();
+    const { theme, setTheme, resolvedTheme } = useTheme();
     const isSSR = useIsSSR();
+    const [mounted, setMounted] = useState(false);
 
-    const onChange = () => {
-        theme === "light" ? setTheme("dark") : setTheme("light");
-    };
+    // After mounting, we can access the theme
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    const onChange = useCallback(() => {
+        setTheme(resolvedTheme === "light" ? "dark" : "light");
+    }, [resolvedTheme, setTheme]);
+
+    // Determine if the light mode is active
+    const isLightMode = !mounted || isSSR ? false : resolvedTheme === "light";
 
     const {
         Component,
@@ -33,10 +41,15 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({
         getInputProps,
         getWrapperProps,
     } = useSwitch({
-        isSelected: theme === "light" || isSSR,
-        "aria-label": `Switch to ${theme === "light" || isSSR ? "dark" : "light"} mode`,
+        isSelected: isLightMode,
+        "aria-label": `Switch to ${isLightMode ? "dark" : "light"} mode`,
         onChange,
     });
+
+    // Don't render anything until mounted to avoid hydration mismatch
+    if (!mounted) {
+        return null;
+    }
 
     return (
         <Component
@@ -70,7 +83,7 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({
                     ),
                 })}
             >
-                {!isSelected || isSSR ? (
+                {isLightMode ? (
                     <SunFilledIcon size={22} />
                 ) : (
                     <MoonFilledIcon size={22} />

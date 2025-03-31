@@ -24,6 +24,9 @@ export const viewport: Viewport = {
         { media: "(prefers-color-scheme: light)", color: "white" },
         { media: "(prefers-color-scheme: dark)", color: "black" },
     ],
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 5,
 };
 
 export default function RootLayout({
@@ -31,8 +34,6 @@ export default function RootLayout({
 }: {
     children: React.ReactNode;
 }) {
-    // const { status } = useSession();
-
     return (
         <html suppressHydrationWarning lang="en">
             <head />
@@ -46,11 +47,12 @@ export default function RootLayout({
                     themeProps={{
                         attribute: "class",
                         defaultTheme: "dark",
+                        enableSystem: true,
+                        disableTransitionOnChange: false,
                     }}
                 >
                     <ChatSidebar />
-                    {/* {status == "authenticated" ? <ChatSidebar /> : <></>} */}
-                    <main className="container mx-auto pt-16  flex-grow">
+                    <main className="container mx-auto pt-16 flex-grow">
                         {children}
                     </main>
                 </Providers>
