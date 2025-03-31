@@ -47,14 +47,14 @@ const createChat = async ({
     });
 
     const completion = await ai.chat.completions.create({
-        model: "meta-llama/Meta-Llama-3.1-405B-Instruct",
+        model: "aaditya/Llama3-OpenBioLLM-70B",
         max_tokens: 100,
         temperature: 0.6,
         top_p: 0.95,
         messages: [
             {
                 role: "system",
-                content: `You must only respond with a name for the chat. Do not add any other text. The chat is about ${message}.`,
+                content: `You must only respond with a name relevant for the chat. Do not add any other text. The chat is about ${message}.`,
             },
             {
                 role: "user",

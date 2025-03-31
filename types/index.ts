@@ -29,3 +29,8 @@ export interface Chat extends UncreatedChat {
     _id: ObjectId;
     unread: boolean;
 }
+
+export interface FrontendChat extends UncreatedChat {
+    unread: boolean;
+    _id: string; // The MongoDB ObjectId is converted to a string for frontend use
+}
