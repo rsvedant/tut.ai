@@ -134,7 +134,7 @@ export default function Home() {
                                 <MessageCard
                                     message={partialResponse}
                                     role="assistant"
-                                    // isPartial={true}
+                                // isPartial={true}
                                 />
                             )}
                         </div>
@@ -179,13 +179,25 @@ export default function Home() {
                                                                 if (!message) {
                                                                     return;
                                                                 }
+
+                                                                // Add user message to UI
                                                                 setMessages([
+                                                                    ...messages,
                                                                     {
                                                                         role: "user",
                                                                         content:
                                                                             message,
                                                                     },
                                                                 ]);
+
+                                                                // Store the original message before clearing input
+                                                                const userMessage =
+                                                                    message;
+
+                                                                // Clear input if needed
+                                                                setMessage("");
+
+                                                                // Make the API request
                                                                 const response =
                                                                     await fetch(
                                                                         "/api/chats",
@@ -193,18 +205,21 @@ export default function Home() {
                                                                             method: "POST",
                                                                             body: JSON.stringify(
                                                                                 {
-                                                                                    message,
+                                                                                    message:
+                                                                                        userMessage,
                                                                                     tutorId:
                                                                                         selectedTutor,
                                                                                 },
                                                                             ),
                                                                         },
                                                                     );
+
                                                                 const reader =
-                                                                    response.body.getReader();
+                                                                    response.body!.getReader();
                                                                 const decoder =
                                                                     new TextDecoder();
-                                                                let result = "";
+                                                                let completeResponse =
+                                                                    "";
 
                                                                 // Read from the stream
                                                                 try {
@@ -231,33 +246,134 @@ export default function Home() {
                                                                                 },
                                                                             );
 
-                                                                        result +=
-                                                                            chunk;
+                                                                        // Process the chunk - AI SDK uses a specific format
+                                                                        const lines =
+                                                                            chunk
+                                                                                .split(
+                                                                                    "\n",
+                                                                                )
+                                                                                .filter(
+                                                                                    (
+                                                                                        line,
+                                                                                    ) =>
+                                                                                        line.trim() !==
+                                                                                        "",
+                                                                                );
 
-                                                                        // Update UI with the partial response
-                                                                        setPartialResponse(
-                                                                            result,
+                                                                        for (const line of lines) {
+                                                                            // AI SDK data stream format: "data: {json}"
+                                                                            if (
+                                                                                line.startsWith(
+                                                                                    "data: ",
+                                                                                )
+                                                                            ) {
+                                                                                try {
+                                                                                    // Try to parse as JSON (AI SDK format)
+                                                                                    const jsonStr =
+                                                                                        line.slice(
+                                                                                            5,
+                                                                                        ); // Remove "data: " prefix
+
+                                                                                    // Skip [DONE] message
+                                                                                    if (
+                                                                                        jsonStr.trim() ===
+                                                                                        "[DONE]"
+                                                                                    )
+                                                                                        continue;
+
+                                                                                    const data =
+                                                                                        JSON.parse(
+                                                                                            jsonStr,
+                                                                                        );
+
+                                                                                    // Extract the text content
+                                                                                    if (
+                                                                                        data.type ===
+                                                                                        "text" &&
+                                                                                        data.text
+                                                                                    ) {
+                                                                                        completeResponse +=
+                                                                                            data.text;
+                                                                                        setPartialResponse(
+                                                                                            completeResponse,
+                                                                                        );
+                                                                                    } else if (
+                                                                                        data.type ===
+                                                                                        "text-delta" &&
+                                                                                        data.delta
+                                                                                    ) {
+                                                                                        completeResponse +=
+                                                                                            data.delta;
+                                                                                        setPartialResponse(
+                                                                                            completeResponse,
+                                                                                        );
+                                                                                    }
+                                                                                } catch (e) {
+                                                                                    // If not valid JSON, just add the content after "data: "
+                                                                                    const textContent =
+                                                                                        line.slice(
+                                                                                            5,
+                                                                                        );
+
+                                                                                    completeResponse +=
+                                                                                        textContent;
+                                                                                    setPartialResponse(
+                                                                                        completeResponse,
+                                                                                    );
+                                                                                }
+                                                                            } else {
+                                                                                // Handle plain text format (not AI SDK format)
+                                                                                // Remove any numeric prefix like "0:" if present
+                                                                                const cleanedLine =
+                                                                                    line.replace(
+                                                                                        /^\d+:/,
+                                                                                        "",
+                                                                                    );
+
+                                                                                completeResponse +=
+                                                                                    cleanedLine;
+                                                                                setPartialResponse(
+                                                                                    completeResponse,
+                                                                                );
+                                                                            }
+                                                                        }
+                                                                    }
+
+                                                                    // After streaming is complete, update messages with the full conversation
+                                                                    setMessages(
+                                                                        [
+                                                                            ...messages,
+                                                                            {
+                                                                                role: "user",
+                                                                                content:
+                                                                                    userMessage,
+                                                                            },
+                                                                            {
+                                                                                role: "assistant",
+                                                                                content:
+                                                                                    completeResponse,
+                                                                            },
+                                                                        ],
+                                                                    );
+                                                                    setPartialResponse("")
+
+                                                                    // Scroll to bottom if needed
+                                                                    if (
+                                                                        chatContainerRef.current
+                                                                    ) {
+                                                                        chatContainerRef.current.scrollTo(
+                                                                            {
+                                                                                top: chatContainerRef
+                                                                                    .current
+                                                                                    .scrollHeight,
+                                                                                behavior:
+                                                                                    "smooth",
+                                                                            },
                                                                         );
                                                                     }
                                                                 } finally {
                                                                     reader.releaseLock();
                                                                 }
-                                                                // const data =
-                                                                //     await response.json();
-
-                                                                // console.log(
-                                                                //     data,
-                                                                // );
-                                                                // setMessage("");
-                                                                // chatContainerRef.current?.scrollTo(
-                                                                //     {
-                                                                //         top: chatContainerRef
-                                                                //             .current
-                                                                //             .scrollHeight,
-                                                                //         behavior:
-                                                                //             "smooth",
-                                                                //     },
-                                                                // );
                                                             }}
                                                         >
                                                             <Icon

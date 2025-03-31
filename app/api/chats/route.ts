@@ -75,7 +75,7 @@ export const POST = async (req: NextRequest): Promise<Response> => {
 
     try {
         const result = streamText({
-            model: customOpenAI("deepseek-ai/DeepSeek-R1-Distill-Llama-70B"),
+            model: customOpenAI("deepseek-ai/DeepSeek-V3-0324"),
             messages: chat.messages as Message[],
             maxRetries: 3,
         });
