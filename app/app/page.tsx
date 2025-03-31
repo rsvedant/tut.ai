@@ -12,10 +12,12 @@ import React from "react";
 
 import { useTutor } from "@/components/tutor-provider";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
     const { status } = useSession();
     const { selectedTutor } = useTutor(); // Changed to match a valid tutor ID
+    const router = useRouter()
     // const [message, setMessage] = React.useState("");
     const chatContainerRef = React.useRef<HTMLDivElement>(null);
     const { data: tutors } = useQuery({
@@ -31,7 +33,6 @@ export default function Home() {
         },
         initialData: [],
     });
-
     const currentTutor = tutors.find((t) => t.id === selectedTutor);
 
     const sendMessage = () => {
@@ -47,6 +48,10 @@ export default function Home() {
     } = useChat({
         api: "/chats",
     });
+
+    if (status == "unauthenticated") {
+        router.push("/auth/signin");
+    }
 
     return (
         <div className="flex flex-col h-[calc(100vh-8rem)] w-full max-w-6xl mx-auto mb-6">
