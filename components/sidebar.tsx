@@ -30,7 +30,7 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Chat, FrontendChat, TutorModel } from "@/types";
+import { FrontendChat, TutorModel } from "@/types";
 
 // Memoized Tutor Item Component
 const TutorItem = React.memo(
@@ -156,8 +156,8 @@ export function ChatSidebar() {
             .filter((chat: FrontendChat) => chat.tutorId === selectedTutor)
             .filter((chat: FrontendChat) =>
                 searchQuery
-                    ? chat.name
-                        .toLowerCase()
+                    ? chat?.name
+                        ?.toLowerCase()
                         .includes(searchQuery.toLowerCase())
                     : true,
             );
