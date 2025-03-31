@@ -37,4 +37,5 @@ next-env.d.ts
 
 .vscode
 # ignore locks g.
-*.lock
+bun.lock
+yarn.lock
