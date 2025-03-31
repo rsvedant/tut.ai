@@ -15,7 +15,6 @@ const createChat = async ({
     const chat = {
         messages,
         id: randomUUID(),
-        // title: generate,
     };
     // const client = await clientPromise;
     // const db = client.db("chats");
