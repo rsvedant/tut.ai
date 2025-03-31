@@ -29,9 +29,11 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { usePathname } from "next/navigation";
 
 // Sample data for tutors and chats
 export function ChatSidebar() {
+    const pathname = usePathname()
     const { status } = useSession();
     const { selectedTutor, setSelectedTutor } = useTutor();
     const [searchQuery, setSearchQuery] = React.useState("");
@@ -99,7 +101,9 @@ export function ChatSidebar() {
         console.log("Creating new chat with tutor:", selectedTutor);
         // Implement your new chat creation logic here
     };
-
+    if (pathname == "/") {
+        return <></>;
+    }
     if (status !== "authenticated") {
         return <></>;
     }
