@@ -13,11 +13,12 @@ import React from "react";
 import { useTutor } from "@/components/tutor-provider";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useRouter } from "next/navigation";
+import { ChatInput } from "@/components/ai/chat-input";
 
 export default function Home() {
     const { status } = useSession();
     const { selectedTutor } = useTutor(); // Changed to match a valid tutor ID
-    const router = useRouter()
+    const router = useRouter();
     // const [message, setMessage] = React.useState("");
     const chatContainerRef = React.useRef<HTMLDivElement>(null);
     const { data: tutors } = useQuery({
@@ -119,62 +120,11 @@ export default function Home() {
                             ref={chatContainerRef}
                             className="flex-1 overflow-y-auto px-5 py-6 space-y-8 bg-gradient-to-b from-zinc-50 to-white dark:from-zinc-900 dark:to-zinc-950 scroll-smooth"
                         >
-                            {/* <MessageCard
-                                avatar={currentTutor?.avatar}
-                                message="Hello! How can I help you today with your mathematics questions?"
-                                showFeedback={true}
-                            />
-
-                            <div className="flex justify-end">
-                                <div className="max-w-[80%] bg-primary text-primary-foreground rounded-t-xl rounded-bl-xl px-4 py-3 shadow-sm">
-                                    <div className="leading-relaxed">
-                                        I&apos;m having trouble understanding
-                                        derivatives in calculus. Could you
-                                        explain the concept in simple terms?
-                                    </div>
-                                    <div className="text-xs mt-1.5 opacity-70 text-right">
-                                        10:32 AM
-                                    </div>
-                                </div>
-                            </div>
-
-                            <MessageCard
-                                avatar={currentTutor?.avatar}
-                                message={
-                                    <>
-                                        <p>
-                                            I&apos;d be happy to help you
-                                            understand derivatives!
-                                        </p>
-                                        <p className="mt-3">
-                                            A derivative measures the rate at
-                                            which a function is changing at a
-                                            specific point. Imagine you&apos;re
-                                            driving a car and the speedometer
-                                            shows your speed at each moment -
-                                            that&apos;s like a derivative. It
-                                            tells you how fast your position is
-                                            changing.
-                                        </p>
-                                        <p className="mt-3">
-                                            The formal definition involves
-                                            limits, but the basic idea is
-                                            measuring the slope of the tangent
-                                            line to the function at a specific
-                                            point.
-                                        </p>
-                                        <p className="mt-3">
-                                            Would you like me to walk you
-                                            through an example?
-                                        </p>
-                                    </>
-                                }
-                                showFeedback={true}
-                            /> */}
+                            {/* Messages go here! */}
                         </div>
                         <div className="p-5 border-t border-zinc-200/50 dark:border-zinc-800 bg-white dark:bg-zinc-950">
                             <div className="flex items-center gap-2">
-                                <Tooltip content="Attach file">
+                                {/* <Tooltip content="Attach file">
                                     <HeroUIButton
                                         isIconOnly
                                         className="rounded-full h-10 w-10 flex items-center justify-center"
@@ -186,8 +136,9 @@ export default function Home() {
                                             icon="lucide:paperclip"
                                         />
                                     </HeroUIButton>
-                                </Tooltip>
-                                <Input
+                                </Tooltip> */}
+                                <ChatInput />
+                                {/* <Input
                                     className="flex-1"
                                     classNames={{
                                         inputWrapper: "h-12 px-4",
@@ -219,7 +170,7 @@ export default function Home() {
                                         }
                                     }}
                                     onValueChange={setMessage}
-                                />
+                                /> */}
                             </div>
                             <div className="mt-2.5 text-xs text-center text-zinc-500 dark:text-zinc-400">
                                 Press Enter to send, Shift+Enter for a new line
@@ -241,7 +192,7 @@ export default function Home() {
                             Select a tutor from the sidebar to start a new
                             conversation or continue an existing one.
                         </p>
-                        <HeroUIButton
+                        {/* <HeroUIButton
                             className="px-6"
                             color="primary"
                             size="lg"
@@ -253,7 +204,7 @@ export default function Home() {
                             }
                         >
                             Start New Conversation
-                        </HeroUIButton>
+                        </HeroUIButton> */}
                     </div>
                 )}
             </div>

@@ -34,7 +34,7 @@ import {
 // Sample data for tutors and chats
 export function ChatSidebar() {
     const pathname = usePathname();
-    const { status } = useSession();
+    const { status, data: session } = useSession();
     const { selectedTutor, setSelectedTutor } = useTutor();
     const [searchQuery, setSearchQuery] = React.useState("");
     const [view, setView] = React.useState<"tutors" | "chats">("tutors");
@@ -105,7 +105,7 @@ export function ChatSidebar() {
     if (pathname == "/") {
         return <></>;
     }
-    if (status !== "authenticated") {
+    if (status !== "authenticated" || !session || !session.user) {
         return <></>;
     }
 
@@ -134,10 +134,11 @@ export function ChatSidebar() {
                 <div className="relative overflow-hidden">
                     {/* Tutors View */}
                     <div
-                        className={`transition-all duration-300 ${view === "tutors"
+                        className={`transition-all duration-300 ${
+                            view === "tutors"
                                 ? "translate-x-0 opacity-100"
                                 : "-translate-x-full absolute opacity-0"
-                            } ${isAnimating ? "pointer-events-none" : ""}`}
+                        } ${isAnimating ? "pointer-events-none" : ""}`}
                     >
                         <SidebarGroup>
                             <SidebarGroupLabel className="flex justify-between items-center">
@@ -197,10 +198,11 @@ export function ChatSidebar() {
 
                     {/* Chats View */}
                     <div
-                        className={`transition-all duration-300 ${view === "chats"
+                        className={`transition-all duration-300 ${
+                            view === "chats"
                                 ? "translate-x-0 opacity-100"
                                 : "translate-x-full absolute opacity-0"
-                            } ${isAnimating ? "pointer-events-none" : ""}`}
+                        } ${isAnimating ? "pointer-events-none" : ""}`}
                     >
                         <SidebarGroup>
                             <SidebarGroupLabel className="flex items-center gap-2">
@@ -303,14 +305,16 @@ export function ChatSidebar() {
                             <Avatar className="h-8 w-8">
                                 <AvatarImage
                                     alt="User"
-                                    src="/placeholder.svg?height=40&width=40"
+                                    src={session.user.image || ""}
                                 />
-                                <AvatarFallback>U</AvatarFallback>
+                                <AvatarFallback>
+                                    {session.user.name?.at(0)?.toUpperCase() ||
+                                        "U"}
+                                </AvatarFallback>
                             </Avatar>
                             <div className="flex flex-col">
-                                <span className="font-medium">Your Name</span>
-                                <span className="text-xs text-muted-foreground">
-                                    Student
+                                <span className="font-medium">
+                                    {session.user.name}
                                 </span>
                             </div>
                         </SidebarMenuButton>
