@@ -47,7 +47,7 @@ export const GET = async (
 
 export const POST = async (
     req: NextRequest,
-    { params }: { params: { conversation: string } },
+    { params }: { params: Promise<{ conversation: string }> },
 ) => {
     const session = await getServerSession(authOptions);
 
