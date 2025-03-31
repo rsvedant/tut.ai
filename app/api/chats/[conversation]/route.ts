@@ -12,7 +12,7 @@ const api = createOpenAI({
 
 export const GET = async (
     req: NextRequest,
-    { params }: { params: { conversation: string } },
+    { params }: { params: Promise<{ conversation: string }> },
 ) => {
     const session = await getServerSession(authOptions);
 
