@@ -6,10 +6,10 @@ import { Tooltip } from "@heroui/tooltip";
 import { Icon } from "@iconify/react";
 import { useState } from "react";
 
-import MessageCard from "./ai-message";
+import MessageCard from "./message-card";
 import PromptInput from "./prompt-input";
 
-import { TutorModel } from "@/types";
+import { Message, TutorModel } from "@/types";
 
 export const ChatHeader = ({ tutor }: { tutor: TutorModel }) => (
     <div className="py-3.5 px-5 border-b border-zinc-200/50 dark:border-zinc-800 flex items-center justify-between bg-white dark:bg-zinc-950 shadow-sm">
@@ -78,7 +78,7 @@ export const ChatMessages = ({
     messages = [],
 }: {
     chatContainerRef: React.RefObject<HTMLDivElement>;
-    messages?: any[];
+    messages?: Message[];
 }) => (
     <div
         ref={chatContainerRef}
@@ -88,7 +88,7 @@ export const ChatMessages = ({
             <EmptyChatState />
         ) : (
             messages.map((message, index) => (
-                <MessageCard key={index} message={message} />
+                <MessageCard key={index} message={message.content} />
             ))
         )}
     </div>
