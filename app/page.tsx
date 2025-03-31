@@ -77,7 +77,7 @@ export default function Home() {
                                 initial={{ opacity: 0, y: 20 }}
                                 transition={{ duration: 0.5 }}
                             >
-                                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+                                <h1 className="text-4xl md:text-5xl lg:text-6xl pb-3 font-bold mb-6 bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
                                     AI-Powered Education for Everyone
                                 </h1>
                             </motion.div>
