@@ -4,11 +4,12 @@ import { Form } from "@heroui/form";
 import { cn } from "@heroui/theme";
 import { Tooltip } from "@heroui/tooltip";
 import { Icon } from "@iconify/react";
+import { useState } from "react";
 
 import MessageCard from "./ai-message";
 import PromptInput from "./prompt-input";
 
-import { TutorModel } from "@/lib/utils/tutors";
+import { TutorModel } from "@/types";
 
 export const ChatHeader = ({ tutor }: { tutor: TutorModel }) => (
     <div className="py-3.5 px-5 border-b border-zinc-200/50 dark:border-zinc-800 flex items-center justify-between bg-white dark:bg-zinc-950 shadow-sm">
@@ -135,35 +136,44 @@ export const ChatInputActions = ({
 }: {
     message: string;
     handleSubmit: () => Promise<void>;
-}) => (
-    <div className="absolute right-0 flex h-full flex-col items-end justify-between gap-2">
-        <div /> {/* Spacer */}
-        <div className="flex items-end gap-2">
-            <p className="py-1 text-tiny text-default-400">
-                {message.length}/2000
-            </p>
-            <Tooltip showArrow content="Send message">
-                <Button
-                    isIconOnly
-                    color={!message ? "default" : "primary"}
-                    isDisabled={!message}
-                    radius="lg"
-                    size="sm"
-                    variant={!message ? "flat" : "solid"}
-                    onPress={handleSubmit}
-                >
-                    <Icon
-                        className={cn(
-                            "[&>path]:stroke-[2px]",
-                            !message
-                                ? "text-default-600"
-                                : "text-primary-foreground",
-                        )}
-                        icon="solar:arrow-up-linear"
-                        width={20}
-                    />
-                </Button>
-            </Tooltip>
+}) => {
+    const [isLoading, setIsLoading] = useState(false);
+
+    return (
+        <div className="absolute right-0 flex h-full flex-col items-end justify-between gap-2">
+            <div /> {/* Spacer */}
+            <div className="flex items-end gap-2">
+                <p className="py-1 text-tiny text-default-400">
+                    {message.length}/2000
+                </p>
+                <Tooltip showArrow content="Send message">
+                    <Button
+                        isIconOnly
+                        color={!message ? "default" : "primary"}
+                        isDisabled={!message}
+                        isLoading={isLoading}
+                        radius="lg"
+                        size="sm"
+                        variant={!message ? "flat" : "solid"}
+                        onPress={async () => {
+                            setIsLoading(true);
+                            await handleSubmit();
+                            setIsLoading(false);
+                        }}
+                    >
+                        <Icon
+                            className={cn(
+                                "[&>path]:stroke-[2px]",
+                                !message
+                                    ? "text-default-600"
+                                    : "text-primary-foreground",
+                            )}
+                            icon="solar:arrow-up-linear"
+                            width={20}
+                        />
+                    </Button>
+                </Tooltip>
+            </div>
         </div>
-    </div>
-);
+    );
+};

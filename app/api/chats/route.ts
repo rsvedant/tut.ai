@@ -1,18 +1,13 @@
 import { randomUUID } from "crypto";
 
-import { createOpenAI } from "@ai-sdk/openai";
-import { streamText } from "ai";
 import { getServerSession, Session } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
+import OpenAI from "openai";
 
 import client from "@/lib/db";
 import { authOptions } from "@/lib/utils/auth-options";
-import { models, TutorModel } from "@/lib/utils/tutors";
-
-interface Message {
-    role: "user" | "assistant" | "system";
-    content: string;
-}
+import { models } from "@/lib/utils/tutors";
+import { Message, TutorModel, UncreatedChat } from "@/types";
 
 const createChat = async ({
     message,
@@ -23,12 +18,22 @@ const createChat = async ({
     session: Session;
     tutorId: TutorModel["id"];
 }) => {
-    const systemMessage = {
-        role: "system",
-        content: models.find((m) => m.id === tutorId)?.systemPrompt,
-    } as Message;
+    const tutor = models.find((m) => m.id === tutorId);
 
-    const messages = [
+    if (!tutor) {
+        throw new Error("Tutor not found");
+    }
+    const { systemPrompt } = tutor;
+
+    if (!systemPrompt) {
+        throw new Error("System message is required");
+    }
+    const systemMessage: Message = {
+        role: "system",
+        content: systemPrompt,
+    };
+
+    const messages: Message[] = [
         systemMessage,
         {
             role: "user",
@@ -36,16 +41,47 @@ const createChat = async ({
         },
     ];
 
-    const chat = {
+    const ai = new OpenAI({
+        baseURL: "https://api.studio.nebius.com/v1/",
+        apiKey: process.env.NEBIUS_API_KEY,
+    });
+
+    const completion = await ai.chat.completions.create({
+        model: "meta-llama/Meta-Llama-3.1-405B-Instruct",
+        max_tokens: 100,
+        temperature: 0.6,
+        top_p: 0.95,
+        messages: [
+            {
+                role: "system",
+                content: `You must only respond with a name for the chat. Do not add any other text. The chat is about ${message}.`,
+            },
+            {
+                role: "user",
+                content: message,
+            },
+        ],
+    });
+    const chatName = completion.choices[0].message.content;
+
+    if (!chatName) {
+        throw new Error("Chat name is required");
+    } else if (!session.user?.email) {
+        throw new Error("User email is required");
+    }
+
+    const chat: UncreatedChat = {
         messages,
         id: randomUUID(),
         owner: session.user?.email,
         tutorId,
+        name: chatName,
     };
+
     const db = client.db("chats");
     const collection = db.collection("chats");
 
-    await collection.insertOne(chat);
+    await collection.insertOne(chat as any);
 
     return chat;
 };
@@ -64,73 +100,15 @@ export const POST = async (req: NextRequest): Promise<Response> => {
     const { message, tutorId } = await req.json();
     const chat = await createChat({ message, session, tutorId });
 
-    const db = client.db("chats");
-    const collection = db.collection("chats");
-
-    const customOpenAI = createOpenAI({
-        baseURL: "https://api.studio.nebius.com/v1/",
-        apiKey: process.env.NEBIUS_API_KEY,
-        compatibility: "compatible",
-    });
-
-    try {
-        const result = streamText({
-            model: customOpenAI("deepseek-ai/DeepSeek-V3-0324"),
-            messages: chat.messages as Message[],
-            maxRetries: 3,
-        });
-        const fullResponsePromise = result.text;
-
-        const streamResponse = result.toDataStreamResponse();
-
-        fullResponsePromise
-            .then(async (fullText) => {
-                try {
-                    await collection.updateOne(
-                        {
-                            id: chat.id,
-                        },
-                        {
-                            $push: {
-                                messages: {
-                                    role: "assistant",
-                                    content: fullText,
-                                } as any,
-                            },
-                        },
-                    );
-                } catch (error) {
-                    // Log error to server logs without using console
-                    const errorMessage =
-                        error instanceof Error ? error.message : String(error);
-
-                    process.stderr.write(
-                        `Error updating chat with AI response: ${errorMessage}\n`,
-                    );
-                }
-            })
-            .catch((error) => {
-                // Log error to server logs without using console
-                const errorMessage =
-                    error instanceof Error ? error.message : String(error);
-
-                process.stderr.write(
-                    `Error getting full AI response: ${errorMessage}\n`,
-                );
-            });
-
-        return streamResponse;
-    } catch (error) {
-        const errorMessage =
-            error instanceof Error ? error.message : String(error);
-
-        process.stderr.write(`Error in AI stream: ${errorMessage}\n`);
-
-        return NextResponse.json(
-            { error: "Failed to process your request" },
-            { status: 500 },
-        );
-    }
+    return NextResponse.json(
+        {
+            message: "Chat created",
+            chatId: chat.id,
+        },
+        {
+            status: 200,
+        },
+    );
 };
 
 export const GET = async (req: NextRequest): Promise<Response> => {

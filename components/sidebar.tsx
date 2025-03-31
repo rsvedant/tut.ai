@@ -30,6 +30,7 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { Chat, TutorModel } from "@/types";
 
 // Sample data for tutors and chats
 export function ChatSidebar() {
@@ -65,13 +66,14 @@ export function ChatSidebar() {
         },
         initialData: [],
     });
-    // Filter chats based on selected tutor
+
     const filteredChats = selectedTutor
-        ? chats.filter((chat) => chat.tutorId === selectedTutor)
+        ? chats.filter((chat: Chat) => chat.tutorId === selectedTutor)
         : [];
 
-    // Get the selected tutor object
-    const activeTutor = tutors.find((tutor) => tutor.id === selectedTutor);
+    const activeTutor = tutors.find(
+        (tutor: TutorModel) => tutor.id === selectedTutor,
+    );
 
     // Handle tutor selection with animation
     const handleTutorSelect = (tutorId: string) => {
@@ -98,8 +100,7 @@ export function ChatSidebar() {
 
     // Handle new chat creation
     const handleNewChat = () => {
-        console.log("Creating new chat with tutor:", selectedTutor);
-        // Implement your new chat creation logic here
+        handleTutorSelect(selectedTutor || "");
     };
 
     if (pathname == "/") {
@@ -134,11 +135,10 @@ export function ChatSidebar() {
                 <div className="relative overflow-hidden">
                     {/* Tutors View */}
                     <div
-                        className={`transition-all duration-300 ${
-                            view === "tutors"
+                        className={`transition-all duration-300 ${view === "tutors"
                                 ? "translate-x-0 opacity-100"
                                 : "-translate-x-full absolute opacity-0"
-                        } ${isAnimating ? "pointer-events-none" : ""}`}
+                            } ${isAnimating ? "pointer-events-none" : ""}`}
                     >
                         <SidebarGroup>
                             <SidebarGroupLabel className="flex justify-between items-center">
@@ -155,7 +155,7 @@ export function ChatSidebar() {
                             <SidebarGroupContent>
                                 <ScrollArea className="h-[calc(100vh-200px)]">
                                     <SidebarMenu>
-                                        {tutors.map((tutor) => (
+                                        {tutors.map((tutor: TutorModel) => (
                                             <SidebarMenuItem key={tutor.id}>
                                                 <SidebarMenuButton
                                                     className="flex items-center gap-3"
@@ -166,10 +166,10 @@ export function ChatSidebar() {
                                                     }
                                                 >
                                                     <Avatar className="h-8 w-8">
-                                                        <AvatarImage
+                                                        {/* <AvatarImage
                                                             alt={tutor.name}
                                                             src={tutor.avatar}
-                                                        />
+                                                        /> */}
                                                         <AvatarFallback>
                                                             {tutor.name.charAt(
                                                                 0,
@@ -184,9 +184,6 @@ export function ChatSidebar() {
                                                             {tutor.subject}
                                                         </span>
                                                     </div>
-                                                    {tutor.online && (
-                                                        <div className="ml-auto h-2 w-2 rounded-full bg-green-500" />
-                                                    )}
                                                 </SidebarMenuButton>
                                             </SidebarMenuItem>
                                         ))}
@@ -198,11 +195,10 @@ export function ChatSidebar() {
 
                     {/* Chats View */}
                     <div
-                        className={`transition-all duration-300 ${
-                            view === "chats"
+                        className={`transition-all duration-300 ${view === "chats"
                                 ? "translate-x-0 opacity-100"
                                 : "translate-x-full absolute opacity-0"
-                        } ${isAnimating ? "pointer-events-none" : ""}`}
+                            } ${isAnimating ? "pointer-events-none" : ""}`}
                     >
                         <SidebarGroup>
                             <SidebarGroupLabel className="flex items-center gap-2">
@@ -252,23 +248,32 @@ export function ChatSidebar() {
                                 <ScrollArea className="h-[calc(100vh-250px)]">
                                     <SidebarMenu>
                                         {filteredChats.length > 0 ? (
-                                            filteredChats.map((chat) => (
+                                            filteredChats.map((chat: Chat) => (
                                                 <SidebarMenuItem key={chat.id}>
                                                     <SidebarMenuButton className="flex flex-col items-start gap-1">
                                                         <div className="flex w-full justify-between">
                                                             <span className="font-medium">
-                                                                {chat.title}
+                                                                {chat.name}
                                                             </span>
                                                             <span className="text-xs text-muted-foreground">
-                                                                {chat.timestamp}
+                                                                {new Date(
+                                                                    parseInt(
+                                                                        chat._id.substring(
+                                                                            0,
+                                                                            8,
+                                                                        ),
+                                                                        16,
+                                                                    ) * 1000,
+                                                                ).toLocaleTimeString(
+                                                                    [],
+                                                                    {
+                                                                        hour: "2-digit",
+                                                                        minute: "2-digit",
+                                                                    },
+                                                                )}
                                                             </span>
                                                         </div>
                                                         <div className="flex w-full justify-between">
-                                                            <span className="text-xs text-muted-foreground truncate max-w-[80%]">
-                                                                {
-                                                                    chat.lastMessage
-                                                                }
-                                                            </span>
                                                             {chat.unread && (
                                                                 <Badge
                                                                     className="h-5 w-5 rounded-full p-0 flex items-center justify-center"
