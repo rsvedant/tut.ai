@@ -8,7 +8,7 @@ import {
     PlusCircle,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import * as React from "react";
 
 import { useTutor } from "./tutor-provider";
@@ -30,7 +30,7 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Chat, TutorModel } from "@/types";
+import { Chat, FrontendChat, TutorModel } from "@/types";
 
 // Sample data for tutors and chats
 export function ChatSidebar() {
@@ -65,6 +65,7 @@ export function ChatSidebar() {
             return response.json();
         },
         initialData: [],
+        // refetchInterval: 3000, // Refetch every 3 seconds
     });
 
     const filteredChats = selectedTutor
@@ -97,10 +98,13 @@ export function ChatSidebar() {
             setIsAnimating(false);
         }, 50);
     };
-
+    const router = useRouter();
     // Handle new chat creation
     const handleNewChat = () => {
         handleTutorSelect(selectedTutor || "");
+        if (pathname !== "/app") {
+            router.push("/app");
+        }
     };
 
     if (pathname == "/") {
@@ -248,47 +252,52 @@ export function ChatSidebar() {
                                 <ScrollArea className="h-[calc(100vh-250px)]">
                                     <SidebarMenu>
                                         {filteredChats.length > 0 ? (
-                                            filteredChats.map((chat: Chat) => (
-                                                <SidebarMenuItem key={chat.id}>
-                                                    <SidebarMenuButton className="flex flex-col items-start gap-1">
-                                                        <div className="flex w-full justify-between">
-                                                            <span className="font-medium">
-                                                                {chat.name}
-                                                            </span>
-                                                            <span className="text-xs text-muted-foreground">
-                                                                {new Date(
-                                                                    parseInt(
-                                                                        chat._id.substring(
-                                                                            0,
-                                                                            8,
-                                                                        ),
-                                                                        16,
-                                                                    ) * 1000,
-                                                                ).toLocaleTimeString(
-                                                                    [],
-                                                                    {
-                                                                        hour: "2-digit",
-                                                                        minute: "2-digit",
-                                                                    },
+                                            filteredChats.map(
+                                                (chat: FrontendChat) => (
+                                                    <SidebarMenuItem
+                                                        key={chat.id}
+                                                    >
+                                                        <SidebarMenuButton className="flex flex-col items-start gap-1">
+                                                            <div className="flex w-full justify-between">
+                                                                <span className="font-medium">
+                                                                    {chat.name}
+                                                                </span>
+                                                                <span className="text-xs text-muted-foreground">
+                                                                    {new Date(
+                                                                        parseInt(
+                                                                            chat._id.substring(
+                                                                                0,
+                                                                                8,
+                                                                            ),
+                                                                            16,
+                                                                        ) *
+                                                                        1000,
+                                                                    ).toLocaleTimeString(
+                                                                        [],
+                                                                        {
+                                                                            hour: "2-digit",
+                                                                            minute: "2-digit",
+                                                                        },
+                                                                    )}
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex w-full justify-between">
+                                                                {chat.unread && (
+                                                                    <Badge
+                                                                        className="h-5 w-5 rounded-full p-0 flex items-center justify-center"
+                                                                        variant="default"
+                                                                    >
+                                                                        <span className="sr-only">
+                                                                            Unread
+                                                                            messages
+                                                                        </span>
+                                                                    </Badge>
                                                                 )}
-                                                            </span>
-                                                        </div>
-                                                        <div className="flex w-full justify-between">
-                                                            {chat.unread && (
-                                                                <Badge
-                                                                    className="h-5 w-5 rounded-full p-0 flex items-center justify-center"
-                                                                    variant="default"
-                                                                >
-                                                                    <span className="sr-only">
-                                                                        Unread
-                                                                        messages
-                                                                    </span>
-                                                                </Badge>
-                                                            )}
-                                                        </div>
-                                                    </SidebarMenuButton>
-                                                </SidebarMenuItem>
-                                            ))
+                                                            </div>
+                                                        </SidebarMenuButton>
+                                                    </SidebarMenuItem>
+                                                ),
+                                            )
                                         ) : (
                                             <div className="px-4 py-3 text-sm text-muted-foreground">
                                                 No chats with this tutor yet.
