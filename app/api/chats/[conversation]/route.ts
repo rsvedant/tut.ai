@@ -1,4 +1,5 @@
 import { createOpenAI } from "@ai-sdk/openai";
+import { streamText } from "ai";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -11,7 +12,7 @@ const api = createOpenAI({
 });
 
 export const GET = async (
-    req: NextRequest,
+    _req: NextRequest,
     { params }: { params: Promise<{ conversation: string }> },
 ) => {
     const session = await getServerSession(authOptions);
@@ -51,7 +52,7 @@ export const GET = async (
             prompt: messages,
         });
 
-    return completion.stream;
+    return new Response(completion.stream);
 };
 
 export const POST = async (
@@ -79,20 +80,23 @@ export const POST = async (
             { status: 400 },
         );
     }
-    if (!conversation) {
+
+    const chat = await client
+        .db("chats")
+        .collection("chats")
+        .findOne({ id: conversation, owner: session.user?.email });
+
+    if (!chat) {
         return NextResponse.json(
-            { error: "Message cannot be empty" },
-            { status: 400 },
+            { error: "Conversation not found" },
+            { status: 404 },
         );
     }
 
-    const completion = await api
-        .chat("deepseek-ai/DeepSeek-R1-Distill-Llama-70B")
-        .doStream({
-            inputFormat: "messages",
-            mode: { type: "regular" },
-            prompt: [{ role: "user", content: message }],
-        });
+    const result = streamText({
+        model: api.chat("deepseek-ai/DeepSeek-R1-Distill-Llama-70B"),
+        messages: [{ role: "user", content: message }, ...chat.messages],
+    });
 
-    return completion.stream;
+    return result.toDataStreamResponse();
 };

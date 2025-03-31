@@ -57,7 +57,7 @@ export default function Chat() {
                         />
                         <ChatMessages chatContainerRef={chatContainerRef} />
                         <ChatInput
-                            handleSubmit={async () => { }}
+                            handleSubmit={async () => {}}
                             message={input}
                             setMessage={setInput}
                         />
