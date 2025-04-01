@@ -10,7 +10,9 @@ import {
 import { useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import * as React from "react";
+import { toast } from "sonner";
 
+import { useChatContext } from "./chat-provider";
 import { useTutor } from "./tutor-provider";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -31,7 +33,6 @@ import {
     SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { FrontendChat, TutorModel } from "@/types";
-import { useChatContext } from "./chat-provider";
 
 // Memoized Tutor Item Component
 const TutorItem = React.memo(
@@ -64,33 +65,59 @@ const TutorItem = React.memo(
 TutorItem.displayName = "TutorItem";
 
 // Memoized Chat Item Component
-const ChatItem = React.memo(({ chat }: { chat: FrontendChat }) => (
-    <SidebarMenuItem key={chat.id}>
-        <SidebarMenuButton className="flex flex-col items-start gap-1">
-            <div className="flex w-full justify-between">
-                <span className="font-medium">{chat.name}</span>
-                <span className="text-xs text-muted-foreground">
-                    {new Date(
-                        parseInt(chat._id.substring(0, 8), 16) * 1000,
-                    ).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                    })}
-                </span>
-            </div>
-            <div className="flex w-full justify-between">
-                {chat.unread && (
-                    <Badge
-                        className="h-5 w-5 rounded-full p-0 flex items-center justify-center"
-                        variant="default"
-                    >
-                        <span className="sr-only">Unread messages</span>
-                    </Badge>
-                )}
-            </div>
-        </SidebarMenuButton>
-    </SidebarMenuItem>
-));
+const ChatItem = React.memo(({ chat }: { chat: FrontendChat }) => {
+    const { setChatId } = useChatContext();
+    const router = useRouter();
+    const pathname = usePathname();
+
+    router.prefetch(`/app/chats/${chat.id}`);
+
+    return (
+        <SidebarMenuItem
+            key={chat.id}
+            onClick={() => {
+                toast("Loading chat...");
+                setChatId(chat.id);
+                router.push(`/app/chats/${chat.id}`);
+            }}
+            // If the pathname is /app/chats/[id], do not show the loading toast
+            className={`${pathname === `/app/chats/${chat.id}`
+                ? "pointer-events-none"
+                : "cursor-pointer"
+                }`}
+            onMouseEnter={() => {
+                router.prefetch(`/app/chats/${chat.id}`);
+            }}
+        >
+            <SidebarMenuButton
+                className="flex flex-col items-start gap-1"
+                isActive={pathname === `/app/chats/${chat.id}`}
+            >
+                <div className="flex w-full justify-between">
+                    <span className="font-medium">{chat.name}</span>
+                    <span className="text-xs text-muted-foreground">
+                        {new Date(
+                            parseInt(chat._id.substring(0, 8), 16) * 1000,
+                        ).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                        })}
+                    </span>
+                </div>
+                <div className="flex w-full justify-between">
+                    {chat.unread && (
+                        <Badge
+                            className="h-5 w-5 rounded-full p-0 flex items-center justify-center"
+                            variant="default"
+                        >
+                            <span className="sr-only">Unread messages</span>
+                        </Badge>
+                    )}
+                </div>
+            </SidebarMenuButton>
+        </SidebarMenuItem>
+    );
+});
 
 ChatItem.displayName = "ChatItem";
 
@@ -102,7 +129,7 @@ export function ChatSidebar() {
     const [view, setView] = React.useState<"tutors" | "chats">("tutors");
     const [isAnimating, setIsAnimating] = React.useState(false);
     const router = useRouter();
-    const { chatId, setChatId } = useChatContext()
+    const { setChatId } = useChatContext();
 
     // Prefetch the app route for better performance
     React.useEffect(() => {
@@ -210,9 +237,6 @@ export function ChatSidebar() {
 
     // Handle new chat creation
     const handleNewChat = React.useCallback(() => {
-        if (!activeTutor) return;
-        setChatId("");
-        setIsAnimating(true);
         handleTutorSelect(selectedTutor || "");
         if (pathname !== "/app") {
             router.push("/app");

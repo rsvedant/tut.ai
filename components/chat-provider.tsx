@@ -1,24 +1,29 @@
 "use client";
 
-import type { Message } from "@/types";
 import type React from "react";
 
+import { useChat, type Message } from "@ai-sdk/react";
+import { useParams } from "next/navigation";
 import {
     createContext,
-    type ReactNode,
     useCallback,
     useContext,
     useEffect,
     useState,
+    type ReactNode,
 } from "react";
 
 interface ChatContextType {
     messages: Message[];
+    input: string;
+    setInput:
+    | ((input: string) => void)
+    | React.Dispatch<React.SetStateAction<string>>;
+    handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
     isLoading: boolean;
     error: Error | null;
     chatId: string | null;
     setChatId: (id: string) => void;
-    sendMessage: (content: string) => Promise<void>;
     clearMessages: () => void;
 }
 
@@ -32,22 +37,23 @@ interface ChatProviderProps {
 
 // Create the provider component
 export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
-    const [messages, setMessages] = useState<Message[]>([]);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const { chatId: chatIdFromURI }: { chatId: string } = useParams();
+    const [chatId, setChatId] = useState<string | null>(chatIdFromURI);
+    const [initialMessages, setInitialMessages] = useState<Message[]>([]);
     const [error, setError] = useState<Error | null>(null);
-    const [chatId, setChatId] = useState<string | null>(null);
+    const [isFetching, setIsFetching] = useState<boolean>(false);
 
     // Fetch messages when chatId changes
     useEffect(() => {
         if (!chatId) {
-            setMessages([]);
+            setInitialMessages([]);
 
             return;
         }
 
         const fetchMessages = async () => {
             try {
-                setIsLoading(true);
+                setIsFetching(true);
                 setError(null);
 
                 const response = await fetch(`/api/chats/${chatId}`);
@@ -60,7 +66,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
                 const data = await response.json();
 
-                setMessages(data.messages || []);
+                // Convert the messages to the format expected by useChat
+                setInitialMessages(data.messages || []);
             } catch (err) {
                 setError(
                     err instanceof Error
@@ -69,80 +76,54 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
                 );
                 console.error("Error fetching messages:", err);
             } finally {
-                setIsLoading(false);
+                setIsFetching(false);
             }
         };
 
         fetchMessages();
     }, [chatId]);
 
-    // Function to send a message
-    const sendMessage = useCallback(
-        async (content: string) => {
-            if (!chatId) {
-                setError(new Error("No chat selected"));
+    // Use the useChat hook from Vercel AI SDK
+    const {
+        messages,
+        input,
+        setInput,
+        handleSubmit,
+        isLoading: isChatLoading,
+        error: chatError,
+        reload,
+        setMessages,
+    } = useChat({
+        api: chatId ? `/api/chats/${chatId}` : undefined,
+        initialMessages,
+        // This ensures the chat is reset when initialMessages changes
+        id: chatId || "default",
+    });
 
-                return;
-            }
-
-            try {
-                setIsLoading(true);
-                setError(null);
-
-                // Add user message to the chat (optimistic update)
-                const userMessage: Message = {
-                    content,
-                    role: "user",
-                };
-
-                setMessages((prevMessages) => [...prevMessages, userMessage]);
-
-                // Send message to the API
-                const response = await fetch(`/api/chats/${chatId}`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ message: content }),
-                });
-
-                if (!response.ok) {
-                    throw new Error(
-                        `Failed to send message: ${response.statusText}`,
-                    );
-                }
-
-                const data = await response.json();
-
-                // Update messages with the complete conversation from the server
-                // This ensures we have the correct state including the AI response
-                setMessages(data.messages || []);
-            } catch (err) {
-                setError(
-                    err instanceof Error
-                        ? err
-                        : new Error("Failed to send message"),
-                );
-                console.error("Error sending message:", err);
-            } finally {
-                setIsLoading(false);
-            }
-        },
-        [chatId],
-    );
+    // Update messages when initialMessages change (after fetching)
+    useEffect(() => {
+        if (initialMessages.length > 0) {
+            setMessages(initialMessages);
+        }
+    }, [initialMessages, setMessages]);
 
     // Function to clear all messages
     const clearMessages = useCallback(() => {
         setMessages([]);
-    }, []);
+    }, [setMessages]);
+
+    const isLoading = isFetching || isChatLoading;
+    const combinedError = error || chatError;
 
     const value: ChatContextType = {
         messages,
+        input,
+        setInput,
+        handleSubmit,
         isLoading,
-        error,
+        error: combinedError || null,
         chatId,
         setChatId,
-        sendMessage,
         clearMessages,
     };
 

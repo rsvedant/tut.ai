@@ -5,6 +5,7 @@ import { Metadata, Viewport } from "next";
 import { Providers } from "./providers";
 
 import { ChatSidebar } from "@/components/sidebar";
+import { Toaster } from "@/components/ui/sonner";
 import { fontSans } from "@/config/fonts";
 import { siteConfig } from "@/config/site";
 
@@ -52,6 +53,7 @@ export default function RootLayout({
                     }}
                 >
                     <ChatSidebar />
+                    <Toaster />
                     <main className="container mx-auto pt-16 flex-grow">
                         {children}
                     </main>

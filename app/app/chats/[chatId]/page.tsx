@@ -1,12 +1,12 @@
 "use client";
 
-import { useChat } from "@ai-sdk/react";
 import { Icon } from "@iconify/react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { useRef } from "react";
 
 import { ChatHeader, ChatInput, ChatMessages } from "@/components/ai/chat";
+import { useChatContext } from "@/components/chat-provider";
 import { useTutor } from "@/components/tutor-provider";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { TutorModel } from "@/types";
@@ -29,10 +29,9 @@ export default function Chat() {
         retry: 2,
     });
 
-    const { messages, input, setInput, handleSubmit } = useChat({
-        api: `/api/chats/${chatId}`,
-        initialMessages: [],
-    });
+    const { messages, input, setInput, handleSubmit, isLoading, error } =
+        useChatContext();
+
     const chatContainerRef = useRef<HTMLDivElement>(null);
 
     return (
@@ -59,8 +58,8 @@ export default function Chat() {
                             messages={messages as any}
                         />
                         <ChatInput
-                            handleSubmit={async () => {
-                                await handleSubmit();
+                            handleSubmit={async (e) => {
+                                await handleSubmit(e);
                                 setInput("");
                             }}
                             message={input}
