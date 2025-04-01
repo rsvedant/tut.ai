@@ -31,6 +31,7 @@ import {
     SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { FrontendChat, TutorModel } from "@/types";
+import { useChatContext } from "./chat-provider";
 
 // Memoized Tutor Item Component
 const TutorItem = React.memo(
@@ -101,6 +102,7 @@ export function ChatSidebar() {
     const [view, setView] = React.useState<"tutors" | "chats">("tutors");
     const [isAnimating, setIsAnimating] = React.useState(false);
     const router = useRouter();
+    const { chatId, setChatId } = useChatContext()
 
     // Prefetch the app route for better performance
     React.useEffect(() => {
@@ -208,6 +210,9 @@ export function ChatSidebar() {
 
     // Handle new chat creation
     const handleNewChat = React.useCallback(() => {
+        if (!activeTutor) return;
+        setChatId("");
+        setIsAnimating(true);
         handleTutorSelect(selectedTutor || "");
         if (pathname !== "/app") {
             router.push("/app");
