@@ -12,6 +12,7 @@ import * as React from "react";
 import AuthProvider from "@/components/auth/auth-provider";
 import { TutorProvider } from "@/components/tutor-provider";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { ChatProvider } from "@/components/chat-provider";
 
 export interface ProvidersProps {
     children: React.ReactNode;
@@ -45,18 +46,20 @@ export function Providers({ children, themeProps }: ProvidersProps) {
 
     return (
         <AuthProvider>
-            <QueryClientProvider client={queryClient}>
-                {/* {process.env.NODE_ENV === "development" && (
-                    <ReactQueryDevtools initialIsOpen={false} />
-                )} */}
-                <TutorProvider>
-                    <HeroUIProvider navigate={router.push}>
-                        <NextThemesProvider {...themeProps}>
-                            <SidebarProvider>{children}</SidebarProvider>
-                        </NextThemesProvider>
-                    </HeroUIProvider>
-                </TutorProvider>
-            </QueryClientProvider>
+            <ChatProvider>
+                <QueryClientProvider client={queryClient}>
+                    {/* {process.env.NODE_ENV === "development" && (
+                        <ReactQueryDevtools initialIsOpen={false} />
+                    )} */}
+                    <TutorProvider>
+                        <HeroUIProvider navigate={router.push}>
+                            <NextThemesProvider {...themeProps}>
+                                <SidebarProvider>{children}</SidebarProvider>
+                            </NextThemesProvider>
+                        </HeroUIProvider>
+                    </TutorProvider>
+                </QueryClientProvider>
+            </ChatProvider>
         </AuthProvider>
     );
 }
