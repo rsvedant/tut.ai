@@ -2,7 +2,8 @@
 
 import { Icon } from "@iconify/react";
 import { useQuery } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { useParams, useRouter } from "next/navigation";
 import { useRef } from "react";
 
 import { ChatHeader, ChatInput, ChatMessages } from "@/components/ai/chat";
@@ -12,6 +13,8 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { TutorModel } from "@/types";
 
 export default function Chat() {
+    const { status } = useSession();
+    const router = useRouter();
     const { chatId } = useParams();
     const { selectedTutor } = useTutor();
     const { data: tutors } = useQuery<TutorModel[]>({
@@ -33,6 +36,10 @@ export default function Chat() {
         useChatContext();
 
     const chatContainerRef = useRef<HTMLDivElement>(null);
+
+    if (status === "unauthenticated") {
+        router.push("/");
+    }
 
     return (
         <div className="flex flex-col h-[calc(100vh-8rem)] w-full max-w-6xl mx-auto mb-6">

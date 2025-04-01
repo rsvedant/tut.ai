@@ -3,9 +3,10 @@ import { Icon } from "@iconify/react";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 
 import { ChatHeader, ChatInput, ChatMessages } from "@/components/ai/chat";
+import { AuthCheck } from "@/components/auth/auth-check";
 import { useTutor } from "@/components/tutor-provider";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { TutorModel } from "@/types";
@@ -18,13 +19,6 @@ export default function Home() {
     const [isSubmitting, setIsSubmitting] = React.useState(false);
     const [error, setError] = React.useState<string | null>(null);
     const chatContainerRef = React.useRef<HTMLDivElement>(null);
-
-    // Redirect unauthenticated users
-    useEffect(() => {
-        if (status === "unauthenticated") {
-            router.push("/auth/signin");
-        }
-    }, [status, router]);
 
     // Fetch tutors with React Query
     const { data: tutors = [], isLoading } = useQuery<TutorModel[]>({
@@ -77,8 +71,8 @@ export default function Home() {
 
                 setError(errorData.message || "Failed to create chat");
             }
-        } catch (error) {
-            console.error("Error creating chat:", error);
+        } catch (err) {
+            // Using err instead of error to avoid linting issues
             setError("An unexpected error occurred. Please try again.");
         } finally {
             setIsSubmitting(false);
@@ -98,37 +92,45 @@ export default function Home() {
     }
 
     return (
-        <div className="flex flex-col h-[calc(100vh-8rem)] w-full max-w-6xl mx-auto mb-6">
-            <SidebarTrigger className="mb-4 md:hidden self-start" />
-            <div className="flex-1 rounded-xl border border-zinc-200/50 dark:border-zinc-800 overflow-hidden flex flex-col bg-zinc-50 dark:bg-zinc-900 shadow-sm">
-                {selectedTutor && currentTutor ? (
-                    <>
-                        <ChatHeader tutor={currentTutor} />
-                        <ChatMessages chatContainerRef={chatContainerRef} />
-                        <ChatInput
-                            handleSubmit={handleSubmit}
-                            message={message}
-                            setMessage={setMessage}
-                        />
-                    </>
-                ) : (
-                    <div className="flex-1 flex flex-col items-center justify-center p-8">
-                        <div className="w-20 h-20 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-6 shadow-sm">
-                            <Icon
-                                className="h-10 w-10 text-zinc-500"
-                                icon="lucide:message-square"
+        <AuthCheck>
+            <div className="flex flex-col h-[calc(100vh-8rem)] w-full max-w-6xl mx-auto mb-6">
+                <SidebarTrigger className="mb-4 md:hidden self-start" />
+                <div className="flex-1 rounded-xl border border-zinc-200/50 dark:border-zinc-800 overflow-hidden flex flex-col bg-zinc-50 dark:bg-zinc-900 shadow-sm">
+                    {selectedTutor && currentTutor ? (
+                        <>
+                            <ChatHeader tutor={currentTutor} />
+                            <ChatMessages chatContainerRef={chatContainerRef} />
+                            <ChatInput
+                                handleSubmit={handleSubmit}
+                                isSubmitting={isSubmitting}
+                                message={message}
+                                setMessage={setMessage}
                             />
+                            {error && (
+                                <div className="p-3 mx-5 mb-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm rounded-lg">
+                                    {error}
+                                </div>
+                            )}
+                        </>
+                    ) : (
+                        <div className="flex-1 flex flex-col items-center justify-center p-8">
+                            <div className="w-20 h-20 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-6 shadow-sm">
+                                <Icon
+                                    className="h-10 w-10 text-zinc-500"
+                                    icon="lucide:message-square"
+                                />
+                            </div>
+                            <h3 className="text-2xl font-semibold mb-3">
+                                No Active Conversation
+                            </h3>
+                            <p className="text-zinc-500 dark:text-zinc-400 text-center max-w-md mb-8 leading-relaxed">
+                                Select a tutor from the sidebar to start a new
+                                conversation or continue an existing one.
+                            </p>
                         </div>
-                        <h3 className="text-2xl font-semibold mb-3">
-                            No Active Conversation
-                        </h3>
-                        <p className="text-zinc-500 dark:text-zinc-400 text-center max-w-md mb-8 leading-relaxed">
-                            Select a tutor from the sidebar to start a new
-                            conversation or continue an existing one.
-                        </p>
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
-        </div>
+        </AuthCheck>
     );
 }

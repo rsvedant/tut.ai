@@ -16,15 +16,15 @@ import {
 interface ChatContextType {
     messages: Message[];
     input: string;
-    setInput:
-    | ((input: string) => void)
-    | React.Dispatch<React.SetStateAction<string>>;
+    setInput: (input: string) => void;
     handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
     isLoading: boolean;
     error: Error | null;
     chatId: string | null;
     setChatId: (id: string) => void;
     clearMessages: () => void;
+    tutorId: string | null;
+    setTutorId: (id: string) => void;
 }
 
 // Create the context with a default value
@@ -42,11 +42,14 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     const [initialMessages, setInitialMessages] = useState<Message[]>([]);
     const [error, setError] = useState<Error | null>(null);
     const [isFetching, setIsFetching] = useState<boolean>(false);
+    const [tutorId, setTutorId] = useState<string | null>(null);
 
     // Fetch messages when chatId changes
     useEffect(() => {
         if (!chatId) {
             setInitialMessages([]);
+
+            setTutorId(null);
 
             return;
         }
@@ -68,6 +71,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
 
                 // Convert the messages to the format expected by useChat
                 setInitialMessages(data.messages || []);
+                setTutorId(data.tutorId || null);
             } catch (err) {
                 setError(
                     err instanceof Error
@@ -125,6 +129,8 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
         chatId,
         setChatId,
         clearMessages,
+        tutorId,
+        setTutorId,
     };
 
     return (

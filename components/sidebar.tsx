@@ -66,7 +66,7 @@ TutorItem.displayName = "TutorItem";
 
 // Memoized Chat Item Component
 const ChatItem = React.memo(({ chat }: { chat: FrontendChat }) => {
-    const { setChatId } = useChatContext();
+    const { setChatId, setTutorId } = useChatContext();
     const router = useRouter();
     const pathname = usePathname();
 
@@ -78,13 +78,15 @@ const ChatItem = React.memo(({ chat }: { chat: FrontendChat }) => {
             onClick={() => {
                 toast("Loading chat...");
                 setChatId(chat.id);
+                setTutorId(chat.tutorId);
                 router.push(`/app/chats/${chat.id}`);
             }}
             // If the pathname is /app/chats/[id], do not show the loading toast
-            className={`${pathname === `/app/chats/${chat.id}`
-                ? "pointer-events-none"
-                : "cursor-pointer"
-                }`}
+            className={`${
+                pathname === `/app/chats/${chat.id}`
+                    ? "pointer-events-none"
+                    : "cursor-pointer"
+            }`}
             onMouseEnter={() => {
                 router.prefetch(`/app/chats/${chat.id}`);
             }}
@@ -129,14 +131,22 @@ export function ChatSidebar() {
     const [view, setView] = React.useState<"tutors" | "chats">("tutors");
     const [isAnimating, setIsAnimating] = React.useState(false);
     const router = useRouter();
-    const { setChatId } = useChatContext();
+    const { chatId, tutorId } = useChatContext();
+
+    // Navigate to the right page
+    React.useEffect(() => {
+        if (tutorId && chatId) {
+            setView("chats");
+            setSelectedTutor(tutorId);
+            router.push(`/app/chats/${chatId}`);
+        }
+    }, [chatId]);
 
     // Prefetch the app route for better performance
     React.useEffect(() => {
         router.prefetch("/app");
     }, [router]);
 
-    // Tutors query with proper error handling
     const {
         data: tutors = [],
         isLoading: tutorsLoading,
@@ -156,7 +166,6 @@ export function ChatSidebar() {
         retry: 2,
     });
 
-    // Chats query with proper error handling
     const {
         data: chats = [],
         isLoading: chatsLoading,
@@ -177,7 +186,6 @@ export function ChatSidebar() {
         enabled: !!selectedTutor, // Only fetch when a tutor is selected
     });
 
-    // Filtered chats based on search query and selected tutor
     const filteredChats = React.useMemo(() => {
         if (!selectedTutor) return [];
 

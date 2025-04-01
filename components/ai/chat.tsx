@@ -4,7 +4,7 @@ import { Form } from "@heroui/form";
 import { cn } from "@heroui/theme";
 import { Tooltip } from "@heroui/tooltip";
 import { Icon } from "@iconify/react";
-import { useState } from "react";
+import { KeyboardEvent } from "react";
 
 import MessageCard from "./message-card";
 import PromptInput from "./prompt-input";
@@ -98,49 +98,71 @@ export const ChatInput = ({
     message,
     setMessage,
     handleSubmit,
+    isSubmitting = false,
 }: {
     message: string;
-    setMessage: React.Dispatch<React.SetStateAction<string>>;
+    setMessage: (input: string) => void;
     handleSubmit: () => Promise<void>;
-}) => (
-    <div className="p-5 border-t border-zinc-200/50 dark:border-zinc-800 bg-white dark:bg-zinc-950">
-        <div className="flex items-center gap-2">
-            <Form className="flex w-full items-start gap-2">
-                <PromptInput
-                    classNames={{
-                        innerWrapper: "relative w-full",
-                        input: "pt-1 pb-6 !pr-10 text-medium",
-                    }}
-                    endContent={
-                        <ChatInputActions
-                            handleSubmit={handleSubmit}
-                            message={message}
-                        />
-                    }
-                    minRows={3}
-                    radius="lg"
-                    value={message}
-                    onValueChange={setMessage}
-                />
-            </Form>
+    isSubmitting?: boolean;
+}) => {
+    const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            if (message.trim() && !isSubmitting) {
+                handleSubmit();
+            }
+        }
+    };
+
+    return (
+        <div className="p-5 border-t border-zinc-200/50 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+            <div className="flex items-center gap-2">
+                <div className="flex w-full items-start gap-2">
+                    <PromptInput
+                        classNames={{
+                            innerWrapper: "relative w-full",
+                            input: "pt-1 pb-6 !pr-10 text-medium",
+                        }}
+                        disabled={isSubmitting}
+                        endContent={
+                            <ChatInputActions
+                                handleSubmit={handleSubmit}
+                                isSubmitting={isSubmitting}
+                                message={message}
+                            />
+                        }
+                        minRows={3}
+                        radius="lg"
+                        value={message}
+                        onKeyDown={handleKeyDown}
+                        onValueChange={setMessage}
+                    />
+                </div>
+            </div>
+            <div className="mt-2.5 text-xs text-center text-zinc-500 dark:text-zinc-400">
+                Press Enter to send, Shift+Enter for a new line
+            </div>
         </div>
-        <div className="mt-2.5 text-xs text-center text-zinc-500 dark:text-zinc-400">
-            Press Enter to send, Shift+Enter for a new line
-        </div>
-    </div>
-);
+    );
+};
 
 export const ChatInputActions = ({
     message,
     handleSubmit,
+    isSubmitting,
 }: {
     message: string;
     handleSubmit: () => Promise<void>;
+    isSubmitting: boolean;
 }) => {
-    const [isLoading, setIsLoading] = useState(false);
-
     return (
-        <div className="absolute right-0 flex h-full flex-col items-end justify-between gap-2">
+        <Form
+            className="absolute right-0 flex h-full flex-col items-end justify-between gap-2"
+            onSubmit={(e) => {
+                e.preventDefault();
+                handleSubmit();
+            }}
+        >
             <div /> {/* Spacer */}
             <div className="flex items-end gap-2">
                 <p className="py-1 text-tiny text-default-400">
@@ -150,16 +172,12 @@ export const ChatInputActions = ({
                     <Button
                         isIconOnly
                         color={!message ? "default" : "primary"}
-                        isDisabled={!message}
-                        isLoading={isLoading}
+                        isDisabled={!message || isSubmitting}
+                        isLoading={isSubmitting}
                         radius="lg"
                         size="sm"
+                        type="submit"
                         variant={!message ? "flat" : "solid"}
-                        onPress={async () => {
-                            setIsLoading(true);
-                            await handleSubmit();
-                            setIsLoading(false);
-                        }}
                     >
                         <Icon
                             className={cn(
@@ -174,6 +192,6 @@ export const ChatInputActions = ({
                     </Button>
                 </Tooltip>
             </div>
-        </div>
+        </Form>
     );
 };
