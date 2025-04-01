@@ -9,12 +9,12 @@ import { authOptions } from "@/lib/utils/auth-options";
 const api = createOpenAI({
     baseURL: "https://api.studio.nebius.com/v1/",
     apiKey: process.env.NEBIUS_API_KEY,
-    compatibility: "compatible", // Add compatibility mode for third-party providers
+    compatibility: "compatible",
 });
 
 export const GET = async (
     _req: NextRequest,
-    { params }: { params: { conversation: string } }, // Fixed params type
+    { params }: { params: Promise<{ conversation: string }> }, // fix type by explicitly specifying params as a Promise
 ) => {
     try {
         const session = await getServerSession(authOptions);
@@ -25,7 +25,7 @@ export const GET = async (
                 { status: 401 },
             );
         }
-        const { conversation } = params;
+        const { conversation } = await params;
 
         if (!conversation) {
             return NextResponse.json(
@@ -60,7 +60,7 @@ export const GET = async (
 
 export const POST = async (
     req: NextRequest,
-    { params }: { params: { conversation: string } }, // Fixed params type
+    { params }: { params: Promise<{ conversation: string }> }, // fix type by explicitly specifying params as a Promise
 ) => {
     try {
         const session = await getServerSession(authOptions);
@@ -72,7 +72,7 @@ export const POST = async (
             );
         }
 
-        const { conversation } = params;
+        const { conversation } = await params;
         const body = await req.json();
         const { messages } = body;
 
@@ -102,10 +102,9 @@ export const POST = async (
             );
         }
 
-        // Assuming messages is an array of message objects
         const result = streamText({
-            model: api("deepseek-ai/DeepSeek-R1-Distill-Llama-70B"), // Correct usage of custom provider
-            messages: [...messages, ...chat.messages], // Correctly format messages
+            model: api("deepseek-ai/DeepSeek-R1-Distill-Llama-70B"),
+            messages: [...messages, ...chat.messages],
         });
 
         result.text.then(async (text) => {
