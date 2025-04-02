@@ -120,6 +120,24 @@ export function ChatContainer() {
         }
     };
 
+    // Add this helper function to extract thinking content
+    const extractThinkingContent = (content: string) => {
+        const thinkRegex = /<think>([\s\S]*?)<\/think>/g;
+        let thinking = "";
+        let processedContent = content;
+        
+        // Extract all thinking blocks
+        const thinkMatches = content.match(thinkRegex);
+        if (thinkMatches) {
+            thinkMatches.forEach(match => {
+                thinking += match.replace(/<think>|<\/think>/g, "");
+                processedContent = processedContent.replace(match, "");
+            });
+        }
+        
+        return { content: processedContent, thinking };
+    };
+
     const fetchMessages = async ({
         chatId,
         showRefetching = false,
@@ -137,7 +155,21 @@ export function ChatContainer() {
                 throw new Error(`Failed to fetch messages: ${response.status}`);
             }
             const data = await response.json();
-            setMessages(data);
+            
+            // Process assistant messages to extract thinking content
+            const processedMessages = data.map((message: ChatMessage) => {
+                if (message.role === "assistant" && message.content.includes("<think>")) {
+                    const { content, thinking } = extractThinkingContent(message.content);
+                    return {
+                        ...message,
+                        content,
+                        thinking: thinking || message.thinking
+                    };
+                }
+                return message;
+            });
+            
+            setMessages(processedMessages);
         } catch (error) {
             console.error("Error fetching messages:", error);
             toast({
@@ -228,12 +260,15 @@ export function ChatContainer() {
                 content: "",
                 role: "assistant",
                 createdAt: new Date().toISOString(),
+                thinking: "",
             };
 
             setMessages((prev) => [...prev, streamingMessage]);
             // scrollToBottom();
 
             let accumulatedContent = "";
+            let accumulatedThinking = "";
+            let inThinkingBlock = false;
 
             while (true) {
                 const { done, value } = await reader.read();
@@ -243,12 +278,43 @@ export function ChatContainer() {
                 }
 
                 const chunk = decoder.decode(value, { stream: true });
-                accumulatedContent += chunk;
+                
+                // Process chunk to extract thinking blocks
+                let processedChunk = "";
+                for (let i = 0; i < chunk.length; i++) {
+                    // Check for opening thinking tag
+                    if (chunk.substring(i).startsWith("<think>") && !inThinkingBlock) {
+                        inThinkingBlock = true;
+                        i += 6; // Skip "<think>"
+                        continue;
+                    }
+                    
+                    // Check for closing thinking tag
+                    if (chunk.substring(i).startsWith("</think>") && inThinkingBlock) {
+                        inThinkingBlock = false;
+                        i += 7; // Skip "</think>"
+                        continue;
+                    }
+                    
+                    // Add character to the appropriate accumulated content
+                    if (inThinkingBlock) {
+                        accumulatedThinking += chunk[i];
+                    } else {
+                        processedChunk += chunk[i];
+                    }
+                }
+                
+                // Update accumulatedContent with non-thinking text
+                accumulatedContent += processedChunk;
 
                 setMessages((prev) =>
                     prev.map((msg) =>
                         msg._id === streamingId
-                            ? { ...msg, content: accumulatedContent }
+                            ? { 
+                                ...msg, 
+                                content: accumulatedContent,
+                                thinking: accumulatedThinking 
+                            }
                             : msg,
                     ),
                 );
@@ -373,11 +439,14 @@ export function ChatContainer() {
                 content: "",
                 role: "assistant",
                 createdAt: new Date().toISOString(),
+                thinking: "",
             };
 
             setMessages((prev) => [...prev, streamingMessage]);
 
             let accumulatedContent = "";
+            let accumulatedThinking = "";
+            let inThinkingBlock = false;
 
             while (true) {
                 const { done, value } = await reader.read();
@@ -387,12 +456,43 @@ export function ChatContainer() {
                 }
 
                 const chunk = decoder.decode(value, { stream: true });
-                accumulatedContent += chunk;
+                
+                // Process chunk to extract thinking blocks
+                let processedChunk = "";
+                for (let i = 0; i < chunk.length; i++) {
+                    // Check for opening thinking tag
+                    if (chunk.substring(i).startsWith("<think>") && !inThinkingBlock) {
+                        inThinkingBlock = true;
+                        i += 6; // Skip "<think>"
+                        continue;
+                    }
+                    
+                    // Check for closing thinking tag
+                    if (chunk.substring(i).startsWith("</think>") && inThinkingBlock) {
+                        inThinkingBlock = false;
+                        i += 7; // Skip "</think>"
+                        continue;
+                    }
+                    
+                    // Add character to the appropriate accumulated content
+                    if (inThinkingBlock) {
+                        accumulatedThinking += chunk[i];
+                    } else {
+                        processedChunk += chunk[i];
+                    }
+                }
+                
+                // Update accumulatedContent with non-thinking text
+                accumulatedContent += processedChunk;
 
                 setMessages((prev) =>
                     prev.map((msg) =>
                         msg._id === streamingId
-                            ? { ...msg, content: accumulatedContent }
+                            ? { 
+                                ...msg, 
+                                content: accumulatedContent,
+                                thinking: accumulatedThinking 
+                            }
                             : msg,
                     ),
                 );
