@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useSearchParamsClient } from "@/hooks/use-search-params-client";
 import type { Tutor } from "@/lib/types";
 import { BookOpen, GraduationCap, PlusCircle } from "lucide-react";
@@ -18,7 +18,7 @@ export function Sidebar() {
     const [loadingChats, setLoadingChats] = useState(false);
     const router = useRouter();
     const { selectedTutor, selectedChat } = useSearchParamsClient();
-    const isMobile = useMobile();
+    const isMobile = useIsMobile();
 
     useEffect(() => {
         const fetchTutors = async () => {

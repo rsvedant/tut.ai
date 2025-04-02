@@ -10,7 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { useMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useSearchParamsClient } from "@/hooks/use-search-params-client";
 import { useToast } from "@/hooks/use-toast";
 import type { ChatMessage, Tutor } from "@/lib/types";
@@ -46,7 +46,7 @@ export function ChatContainer() {
     const { selectedTutor, selectedChat } = useSearchParamsClient();
     const inputRef = useRef<HTMLTextAreaElement>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
-    const isMobile = useMobile();
+    const isMobile = useIsMobile();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const { toast } = useToast();
     const [autoScroll, setAutoScroll] = useState(true);
