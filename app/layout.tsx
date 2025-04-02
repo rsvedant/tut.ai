@@ -7,9 +7,8 @@ import Providers from "./providers";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-    title: "Education AI",
+    title: "Tutor AI",
     description: "AI-powered tutoring platform",
-    generator: "v0.dev",
 };
 
 export default function RootLayout({
