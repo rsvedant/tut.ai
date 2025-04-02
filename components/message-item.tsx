@@ -10,6 +10,8 @@ import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeHighlight from 'rehype-highlight';
 import remarkGfm from 'remark-gfm';
+import 'katex/dist/katex.min.css';
+import { BlockMath, InlineMath } from 'react-katex';
 
 interface MessageItemProps {
     message: ChatMessage;
@@ -29,6 +31,8 @@ export function MessageItem({
     const [showActions, setShowActions] = useState(false);
     const [cursorVisible, setCursorVisible] = useState(true);
     const [showThinking, setShowThinking] = useState(false);
+    const [processedContent, setProcessedContent] = useState<React.ReactNode[]>([]);
+    const [processedThinking, setProcessedThinking] = useState<React.ReactNode[]>([]);
 
     // Blinking cursor effect for streaming messages
     useEffect(() => {
@@ -40,6 +44,200 @@ export function MessageItem({
 
         return () => clearInterval(interval);
     }, [isStreaming]);
+
+    // Process content to render LaTeX
+    useEffect(() => {
+        if (message.content) {
+            setProcessedContent(renderContentWithLaTeX(message.content));
+        }
+        if (message.thinking) {
+            setProcessedThinking(renderContentWithLaTeX(message.thinking));
+        }
+    }, [message.content, message.thinking]);
+
+    const renderContentWithLaTeX = (content: string) => {
+        if (!content) return [];
+        // Use 'g' flag only (without 's' flag) for compatibility with older TypeScript targets
+        const blockRegex = /\\\[(.*?)\\\]/g;
+        const inlineRegex = /\\\((.*?)\\\)/g;
+        
+        let lastIndex = 0;
+        const parts: React.ReactNode[] = [];
+        let match;
+        let contentCopy = content;
+        
+        // Replace block math
+        while ((match = blockRegex.exec(contentCopy)) !== null) {
+            // Add text before the match
+            if (match.index > lastIndex) {
+                parts.push(
+                    <ReactMarkdown
+                        key={`text-${lastIndex}`}
+                        remarkPlugins={[remarkGfm]}
+                        rehypePlugins={[rehypeHighlight]}
+                        components={{
+                            pre: ({ node, ...props }) => (
+                                <pre className="p-2 rounded bg-muted/80 overflow-auto" {...props} />
+                            ),
+                            code: ({ node, className, children, ...props }) => {
+                                const match = /language-(\w+)/.exec(className || '');
+                                return match ? (
+                                    <code className={className} {...props}>
+                                        {children}
+                                    </code>
+                                ) : (
+                                    <code className="bg-muted/50 px-1 py-0.5 rounded text-sm" {...props}>
+                                        {children}
+                                    </code>
+                                );
+                            },
+                            a: ({ node, ...props }) => (
+                                <a className="text-primary hover:underline" target="_blank" rel="noopener noreferrer" {...props} />
+                            ),
+                        }}
+                    >
+                        {contentCopy.slice(lastIndex, match.index)}
+                    </ReactMarkdown>
+                );
+            }
+            
+            // Add the LaTeX block
+            try {
+                parts.push(
+                    <BlockMath key={`math-${match.index}`} math={match[1]} />
+                );
+            } catch (error) {
+                parts.push(<div key={`math-error-${match.index}`} className="text-red-500">{match[0]}</div>);
+            }
+            
+            lastIndex = match.index + match[0].length;
+        }
+        
+        // Add remaining text
+        if (lastIndex < contentCopy.length) {
+            let remainingContent = contentCopy.slice(lastIndex);
+            
+            // Handle inline math in the remaining content
+            lastIndex = 0;
+            const inlineParts: React.ReactNode[] = [];
+            
+            while ((match = inlineRegex.exec(remainingContent)) !== null) {
+                // Add text before the match
+                if (match.index > lastIndex) {
+                    inlineParts.push(
+                        <ReactMarkdown
+                            key={`inline-text-${lastIndex}`}
+                            remarkPlugins={[remarkGfm]}
+                            rehypePlugins={[rehypeHighlight]}
+                            components={{
+                                pre: ({ node, ...props }) => (
+                                    <pre className="p-2 rounded bg-muted/80 overflow-auto" {...props} />
+                                ),
+                                code: ({ node, className, children, ...props }) => {
+                                    const match = /language-(\w+)/.exec(className || '');
+                                    return match ? (
+                                        <code className={className} {...props}>
+                                            {children}
+                                        </code>
+                                    ) : (
+                                        <code className="bg-muted/50 px-1 py-0.5 rounded text-sm" {...props}>
+                                            {children}
+                                        </code>
+                                    );
+                                },
+                                a: ({ node, ...props }) => (
+                                    <a className="text-primary hover:underline" target="_blank" rel="noopener noreferrer" {...props} />
+                                ),
+                            }}
+                        >
+                            {remainingContent.slice(lastIndex, match.index)}
+                        </ReactMarkdown>
+                    );
+                }
+                
+                // Add the inline LaTeX
+                try {
+                    inlineParts.push(
+                        <InlineMath key={`inline-math-${match.index}`} math={match[1]} />
+                    );
+                } catch (error) {
+                    inlineParts.push(<span key={`inline-math-error-${match.index}`} className="text-red-500">{match[0]}</span>);
+                }
+                
+                lastIndex = match.index + match[0].length;
+            }
+            
+            // Add any remaining text after the last inline math
+            if (lastIndex < remainingContent.length) {
+                inlineParts.push(
+                    <ReactMarkdown
+                        key={`inline-text-final`}
+                        remarkPlugins={[remarkGfm]}
+                        rehypePlugins={[rehypeHighlight]}
+                        components={{
+                            pre: ({ node, ...props }) => (
+                                <pre className="p-2 rounded bg-muted/80 overflow-auto" {...props} />
+                            ),
+                            code: ({ node, className, children, ...props }) => {
+                                const match = /language-(\w+)/.exec(className || '');
+                                return match ? (
+                                    <code className={className} {...props}>
+                                        {children}
+                                    </code>
+                                ) : (
+                                    <code className="bg-muted/50 px-1 py-0.5 rounded text-sm" {...props}>
+                                        {children}
+                                    </code>
+                                );
+                            },
+                            a: ({ node, ...props }) => (
+                                <a className="text-primary hover:underline" target="_blank" rel="noopener noreferrer" {...props} />
+                            ),
+                        }}
+                    >
+                        {remainingContent.slice(lastIndex)}
+                    </ReactMarkdown>
+                );
+            }
+            
+            // If there were inline parts, add them; otherwise add the whole remaining content
+            if (inlineParts.length > 0) {
+                parts.push(...inlineParts);
+            } else {
+                parts.push(
+                    <ReactMarkdown
+                        key={`text-final`}
+                        remarkPlugins={[remarkGfm]}
+                        rehypePlugins={[rehypeHighlight]}
+                        components={{
+                            pre: ({ node, ...props }) => (
+                                <pre className="p-2 rounded bg-muted/80 overflow-auto" {...props} />
+                            ),
+                            code: ({ node, className, children, ...props }) => {
+                                const match = /language-(\w+)/.exec(className || '');
+                                return match ? (
+                                    <code className={className} {...props}>
+                                        {children}
+                                    </code>
+                                ) : (
+                                    <code className="bg-muted/50 px-1 py-0.5 rounded text-sm" {...props}>
+                                        {children}
+                                    </code>
+                                );
+                            },
+                            a: ({ node, ...props }) => (
+                                <a className="text-primary hover:underline" target="_blank" rel="noopener noreferrer" {...props} />
+                            ),
+                        }}
+                    >
+                        {remainingContent}
+                    </ReactMarkdown>
+                );
+            }
+        }
+        
+        return parts;
+    };
 
     const isUser = message.role === "user";
     const hasThinking = !!message.thinking && message.thinking.trim().length > 0;
@@ -92,12 +290,9 @@ export function MessageItem({
                                 
                                 {showThinking && (
                                     <Card className="p-3 bg-muted/40 text-sm text-muted-foreground mb-3 whitespace-pre-wrap">
-                                        <ReactMarkdown
-                                            remarkPlugins={[remarkGfm]}
-                                            rehypePlugins={[rehypeHighlight]}
-                                        >
-                                            {message.thinking || ""}
-                                        </ReactMarkdown>
+                                        <div className="prose prose-sm max-w-none dark:prose-invert">
+                                            {processedThinking}
+                                        </div>
                                     </Card>
                                 )}
                             </div>
@@ -108,32 +303,7 @@ export function MessageItem({
                             isUser ? "prose-neutral" : "prose-primary",
                             "dark:prose-invert"
                         )}>
-                            <ReactMarkdown
-                                remarkPlugins={[remarkGfm]}
-                                rehypePlugins={[rehypeHighlight]}
-                                components={{
-                                    pre: ({ node, ...props }) => (
-                                        <pre className="p-2 rounded bg-muted/80 overflow-auto" {...props} />
-                                    ),
-                                    code: ({ node, className, children, ...props }) => {
-                                        const match = /language-(\w+)/.exec(className || '');
-                                        return match ? (
-                                            <code className={className} {...props}>
-                                                {children}
-                                            </code>
-                                        ) : (
-                                            <code className="bg-muted/50 px-1 py-0.5 rounded text-sm" {...props}>
-                                                {children}
-                                            </code>
-                                        );
-                                    },
-                                    a: ({ node, ...props }) => (
-                                        <a className="text-primary hover:underline" target="_blank" rel="noopener noreferrer" {...props} />
-                                    ),
-                                }}
-                            >
-                                {message.content}
-                            </ReactMarkdown>
+                            {processedContent}
                             {isStreaming && cursorVisible && (
                                 <span className="animate-pulse">▋</span>
                             )}

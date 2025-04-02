@@ -764,7 +764,7 @@ export function ChatContainer() {
                     ) : (
                         <div className="h-full flex items-center justify-center">
                             <EmptyState
-                                title="Welcome to Education AI"
+                                title="Welcome to Tutor AI"
                                 description="Select a tutor from the sidebar to get started."
                                 icon={<GraduationCap className="h-12 w-12" />}
                             />

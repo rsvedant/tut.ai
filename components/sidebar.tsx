@@ -94,7 +94,7 @@ export function Sidebar() {
             <div className="p-4 border-b">
                 <h1 className="text-xl font-bold flex items-center">
                     <GraduationCap className="mr-2" />
-                    Education AI
+                    Tutor AI
                 </h1>
             </div>
 
